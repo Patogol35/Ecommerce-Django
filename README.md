@@ -1,4 +1,4 @@
-🛒 Tienda Backend
+🛒 Tienda Backen
 
 Aplicación desarrollada con Django + Django REST Framework que provee el backend de la tienda en línea.
 
