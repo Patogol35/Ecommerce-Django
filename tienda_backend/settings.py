@@ -11,7 +11,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =========================
 # Seguridad
 # =========================
-# ⚠️ Se leen de Render → Environment Variables
 SECRET_KEY = os.environ.get("SECRET_KEY", "inseguro-dev")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = ["*"]
@@ -55,6 +54,23 @@ MIDDLEWARE = [
 # URLs y WSGI
 # =========================
 ROOT_URLCONF = 'tienda_backend.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 WSGI_APPLICATION = 'tienda_backend.wsgi.application'
 
 # =========================
@@ -84,7 +100,19 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=48),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
+
+# =========================
+# Validación de contraseñas
+# =========================
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
 
 # =========================
 # Internacionalización
@@ -107,6 +135,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Config extra
 # =========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Permitir peticiones desde cualquier frontend
 CORS_ALLOW_ALL_ORIGINS = True
