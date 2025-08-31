@@ -11,15 +11,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =========================
 # Seguridad
 # =========================
+# ⚠️ Se leen de Render → Environment Variables
 SECRET_KEY = os.environ.get("SECRET_KEY", "inseguro-dev")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = ["*"]
 
 # =========================
-# Apps
+# Aplicaciones
 # =========================
 INSTALLED_APPS = [
-    # Django apps
+    # Django apps base
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -27,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Terceros
+    # Apps de terceros
     'rest_framework',
     'django_filters',
     'corsheaders',
@@ -51,7 +52,7 @@ MIDDLEWARE = [
 ]
 
 # =========================
-# Rutas
+# URLs y WSGI
 # =========================
 ROOT_URLCONF = 'tienda_backend.urls'
 WSGI_APPLICATION = 'tienda_backend.wsgi.application'
@@ -106,4 +107,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Config extra
 # =========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Permitir peticiones desde cualquier frontend
 CORS_ALLOW_ALL_ORIGINS = True
