@@ -1,1 +1,14 @@
-render
+services:
+  - type: web
+    name: tienda-backend
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn tienda_backend.wsgi:application"
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: False
