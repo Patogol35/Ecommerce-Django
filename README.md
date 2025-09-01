@@ -51,7 +51,7 @@ Integración con frontend en React + Vite
 
 - Django REST Framework SimpleJWT (autenticación con tokens JWT).
 
-- MySQL (configurable también con SQLite en desarrollo).
+- Supabase (PostgreSQL) 
 
 - django-cors-headers (para conexión con frontend).
 
@@ -59,7 +59,8 @@ Integración con frontend en React + Vite
 
 Configuración 
 
-Para el despliegue en produccion deñ backend se utilizó render y supabase
+El backend se desplegó en Render con base de datos alojada en Supabase.
+
 
 📂 Archivos adicionales para Render
 
@@ -76,12 +77,8 @@ Procfile → (opcional en Render) usado para definir cómo iniciar la app con Gu
 
 🗄️ Base de datos con Supabase
 
-En este proyecto la base de datos se aloja en Supabase, que provee una URL de conexión al estilo:
+En este proyecto la base de datos se aloja en Supabase, que provee una URL, esa URL se copia en la variable DATABASE_URL en Render para que Django pueda conectarse.
 
-postgresql://usuario:contraseña@host:puerto/base_de_datos
-
-Esa URL se copia en la variable DATABASE_URL en Render para que Django pueda conectarse.
-q
 
 ⚙️ Configuración en Render
 
@@ -97,7 +94,7 @@ Build Command: ./build.sh
 
 Start Command: gunicorn tienda_backend.wsgi:application
 
-5. En Environment variables de Render agrega tres variables de entornl:
+5. En Environment variables de Render agrega tres variables de entorno:
 
 DATABASE_URL → tu URL de Supabase
 
@@ -105,12 +102,11 @@ SECRET_KEY → un valor fuerte
 
 DEBUG → False
 
-5. Haz deploy, se ejecutaran automaticamente las migraciones y se ejecutara el comando para crear tu admin.
+5. Haz deploy, se ejecutarán automaticamente las migraciones y se creará tu admin.
 
 Cada vez que hagas push a la rama principal en GitHub, Render reconstruirá y desplegará el backend automáticamente.
 
-6. Si el deploy se realizó con éxito podras accder a la direccion que te asigna Render para las opciones de admin y ya se podra conectar al frontend
-
+6. Si el deploy se realizó con éxito podras accder a la direccion que te asigna Render y te podrás conectar con el Frontend en Vercel.
 
 ---
 
