@@ -59,6 +59,8 @@ Integración con frontend en React + Vite
 
 Configuración 
 
+Para el despliegue en produccion deñ backend se utilizó render y supabase
+
 📂 Archivos adicionales para Render
 
 Durante la configuración se añadieron/editaron estos archivos del Backend:
