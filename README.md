@@ -2,10 +2,6 @@
 
 Aplicación desarrollada con Django + Django REST Framework que provee el backend de la tienda en línea.
 
-El frontend se encuentra disponible aquí:
-
-👉 https://github.com/Patogol35/Tienda-Frontend-React
-
 ---
 
 ✨ Características principales
@@ -61,196 +57,66 @@ Integración con frontend en React + Vite
 
 ---
 
-📦 Instalación y configuración
+Configuración 
 
-1. Clona el repositorio
+📂 Archivos adicionales para Render
 
-git clone https://github.com/Patogol35/Tienda-Backend-Django
+Durante la configuración se añadieron/editaron estos archivos del Backend:
+
+render.yaml → define el servicio, comandos de build y variables.
+
+build.sh → script para instalar dependencias y ejecutar migraciones automáticamente antes del deploy.
+
+requirements.txt → actualizado para asegurar que todas las dependencias de Django estén instaladas en Render.
+
+Procfile → (opcional en Render) usado para definir cómo iniciar la app con Gunicorn.
 
 
-2. Ingresa a la carpeta del proyecto
+🗄️ Base de datos con Supabase
+
+En este proyecto la base de datos se aloja en Supabase, que provee una URL de conexión al estilo:
+
+postgresql://usuario:contraseña@host:puerto/base_de_datos
+
+Esa URL se copia en la variable DATABASE_URL en Render para que Django pueda conectarse.
+q
+
+⚙️ Configuración en Render
+
+1. Web Service en Render
    
-cd Tienda-Backend-Django
+Crea tu Web Service en Render (https://render.com):
 
-3. Crea el entorno virtual
+En Build Command ejecuta este comando:
 
-python -m venv venv
+./build.sh
 
-Linux/Mac: source venv/bin/activate
+En Start Command ejecuta este comando:
 
-Windows: venv\Scripts\activate
+gunicorn tienda_backend.wsgi:application
 
 
-4. Instala las dependencias
+2. Variables de Entorno
 
-pip install -r requirements.txt
+En el panel de Environment de Render agrega tres variables de entorno:
 
-⚠️ Si mysqlclient da problemas, instálalo manualmente según tu sistema:
+Name	Value
 
-pip install mysqlclient
+- DATABASE_URL	postgresql://postgres:TU_PASSWORD@db_xxxxxx.supabase.co:5432/postgres (desde Supabase)
 
-o
+- SECRET_KEY	django-insecure-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (elige algo fuerte)
 
-pip install PyMySQL
+- DEBUG	False
 
 
-5. Crea la base de datos en MySQL
+🚀 Deploy automático
 
-CREATE DATABASE tienda_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-En settings.py verifica:
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tienda_db',
-        'USER': 'root',
-        'PASSWORD': 'tu_clave',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
-}
-
-
-6. Aplica las migraciones
-
-python manage.py makemigrations
-
-python manage.py migrate
-
-
-7. Crea el superusuario
-
-python manage.py createsuperuser
-
-
-8. Ejecuta el servidor
-
-python manage.py runserver
-
-
----
-
-🔗 Endpoints principales
-
-Autenticación (JWT)
-
-POST /api/register/ → Registrar usuario
-
-POST /api/token/ → Obtener token de acceso
-
-POST /api/token/refresh/ → Refrescar token
-
-
-Ejemplo:
-
-POST /api/register/
-{
-  "username": "juan",
-  "email": "juan@mail.com",
-  "password": "123456"
-}
-
-
----
-
-Productos
-
-GET /api/productos/ → Listar productos
-
-POST /api/productos/ → Crear producto (admin)
-
-PUT /api/productos/{id}/ → Editar producto
-
-DELETE /api/productos/{id}/ → Eliminar producto
-
-
-Ejemplo respuesta:
-
-[
-  {
-    "id": 1,
-    "nombre": "Camiseta",
-    "descripcion": "Camiseta de algodón",
-    "precio": "19.99",
-    "stock": 10
-  }
-]
-
-
----
-
-Carrito
-
-GET /api/carrito/ → Ver carrito del usuario
-
-POST /api/carrito/agregar/ → Agregar producto al carrito
-
-
-Ejemplo:
-
-POST /api/carrito/agregar/
-{
-  "producto_id": 1,
-  "cantidad": 2
-}
-
-
----
-
-Pedidos
-
-POST /api/pedido/crear/ → Crear pedido desde carrito
-
-GET /api/pedidos/ → Listar pedidos del usuario
-
-
-Ejemplo respuesta:
-
-{
-  "id": 3,
-  "usuario": 1,
-  "fecha": "2025-08-26T10:00:00Z",
-  "total": "39.98",
-  "items": [
-    {
-      "producto": { "id": 1, "nombre": "Camiseta" },
-      "cantidad": 2,
-      "precio_unitario": "19.99",
-      "subtotal": "39.98"
-    }
-  ]
-}
-
-
----
-
-📸 Panel de administración
-
-Accede a:
-👉 http://127.0.0.1:8000/admin/
-
-Podrás gestionar productos, carritos, pedidos y usuarios.
-
-
----
-
-Próximos pasos / Mejoras
-
-[ ] Documentación de la API con Swagger o ReDoc
-
-[ ] Tests automatizados
-
-
-[ ] Manejo de pagos y envíos
-
+Cada vez que hagas push a la rama principal en GitHub, Render reconstruirá y desplegará el backend automáticamente.
 
 
 ---
 
 👨‍💻 Autor
-
 Jorge Patricio Santamaría Cherrez
 
-Máster en Ingeniería de Software y Sistemas Informáticos
-
+Máster en Ingeniería de Software y Sistemas Informáticos 
