@@ -83,35 +83,31 @@ q
 
 ⚙️ Configuración en Render
 
-1. Web Service en Render
-   
-Crea tu Web Service en Render (https://render.com):
+1. Sube tu proyecto a GitHub.
 
-En Build Command ejecuta este comando:
+2. En Render crea un nuevo Web Service.
 
-./build.sh
+3. Conecta el repositorio a Render
 
-En Start Command ejecuta este comando:
+4. Configura:
 
-gunicorn tienda_backend.wsgi:application
+Build Command: ./build.sh
 
+Start Command: gunicorn tienda_backend.wsgi:application
 
-2. Variables de Entorno
+5. En Environment variables de Render agrega tres variables de entornl:
 
-En el panel de Environment de Render agrega tres variables de entorno:
+DATABASE_URL → tu URL de Supabase
 
-Name	Value
+SECRET_KEY → un valor fuerte
 
-- DATABASE_URL	postgresql://postgres:TU_PASSWORD@db_xxxxxx.supabase.co:5432/postgres (desde Supabase)
+DEBUG → False
 
-- SECRET_KEY	django-insecure-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (elige algo fuerte)
-
-- DEBUG	False
-
-
-🚀 Deploy automático
+5. Haz deploy, se ejecutaran automaticamente las migraciones y se ejecutara el comando para crear tu admin.
 
 Cada vez que hagas push a la rama principal en GitHub, Render reconstruirá y desplegará el backend automáticamente.
+
+6. Si el deploy se realizó con éxito podras accder a la direccion que te asigna Render para las opciones de admin y ya se podra conectar al frontend
 
 
 ---
