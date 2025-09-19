@@ -95,6 +95,8 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',  # 👈 Paginación
+    'PAGE_SIZE': 5,  # 👈 Cantidad de pedidos por página
 }
 
 SIMPLE_JWT = {
