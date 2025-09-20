@@ -95,7 +95,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    # ❌ Paginación eliminada aquí para que no afecte a todo
+    # ❌ No hay paginación global aquí
 }
 
 SIMPLE_JWT = {
