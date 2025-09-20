@@ -156,7 +156,7 @@ def crear_pedido(request):
 # LISTAR PEDIDOS DEL USUARIO (con paginación personalizada)
 # ---------------------------
 class PedidoPagination(PageNumberPagination):
-    page_size = 5  # 🔹 Cambia este número para mostrar menos/más pedidos
+    page_size = 30  # 🔹 Cambia este número para mostrar menos/más pedidos
 
 class ListaPedidosUsuario(generics.ListAPIView):
     serializer_class = PedidoSerializer
