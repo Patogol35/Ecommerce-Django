@@ -22,4 +22,7 @@ urlpatterns = [
     # Pedidos
     path('api/pedido/crear/', crear_pedido, name='crear-pedido'),
     path('api/pedidos/', ListaPedidosUsuario.as_view(), name='lista-pedidos'),
+
+
+    path("user/profile/", user_profile, name="user_profile"),
 ]
