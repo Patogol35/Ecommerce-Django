@@ -5,7 +5,7 @@ from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination  # 👈 Paginación personalizada
+from rest_framework.pagination import PageNumberPagination
 from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from .serializers import (
     ProductoSerializer,
@@ -48,6 +48,7 @@ def agregar_al_carrito(request):
 
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_201_CREATED)
 
+
 # ---------------------------
 # ELIMINAR ITEM DEL CARRITO
 # ---------------------------
@@ -60,6 +61,7 @@ def eliminar_del_carrito(request, item_id):
         return Response({'message': 'Producto eliminado del carrito'}, status=status.HTTP_200_OK)
     except ItemCarrito.DoesNotExist:
         return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
+
 
 # ---------------------------
 # ACTUALIZAR CANTIDAD
@@ -85,6 +87,7 @@ def actualizar_cantidad_carrito(request, item_id):
     item.save()
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_200_OK)
 
+
 # ---------------------------
 # VER CARRITO
 # ---------------------------
@@ -96,6 +99,7 @@ class CarritoView(generics.RetrieveAPIView):
         carrito, _ = Carrito.objects.get_or_create(usuario=self.request.user)
         return carrito
 
+
 # ---------------------------
 # REGISTRO USUARIOS
 # ---------------------------
@@ -103,13 +107,14 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
 # ---------------------------
 # CRUD PRODUCTOS
 # ---------------------------
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
-    # Sin paginación para productos
+
 
 # ---------------------------
 # CREAR PEDIDO
@@ -146,18 +151,17 @@ def crear_pedido(request):
 
     return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
 
+
 # ---------------------------
-# LISTAR PEDIDOS DEL USUARIO (solo aquí con paginación)
+# LISTAR PEDIDOS DEL USUARIO (con paginación personalizada)
 # ---------------------------
 class PedidoPagination(PageNumberPagination):
-    page_size = 40
-    page_size_query_param = 'page_size'
-    max_page_size = 100
+    page_size = 5  # 🔹 Cambia este número para mostrar menos/más pedidos
 
 class ListaPedidosUsuario(generics.ListAPIView):
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated]
-    pagination_class = PedidoPagination  # 👈 Solo pedidos usan paginación
+    pagination_class = PedidoPagination
 
     def get_queryset(self):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
