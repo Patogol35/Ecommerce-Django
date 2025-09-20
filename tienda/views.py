@@ -5,6 +5,7 @@ from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination  # 👈 Paginación personalizada
 from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from .serializers import (
     ProductoSerializer,
@@ -108,6 +109,7 @@ class RegisterView(generics.CreateAPIView):
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
+    # Sin paginación para productos
 
 # ---------------------------
 # CREAR PEDIDO
@@ -145,11 +147,17 @@ def crear_pedido(request):
     return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
 
 # ---------------------------
-# LISTAR PEDIDOS DEL USUARIO (con paginación)
+# LISTAR PEDIDOS DEL USUARIO (solo aquí con paginación)
 # ---------------------------
+class PedidoPagination(PageNumberPagination):
+    page_size = 40
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class ListaPedidosUsuario(generics.ListAPIView):
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = PedidoPagination  # 👈 Solo pedidos usan paginación
 
     def get_queryset(self):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
