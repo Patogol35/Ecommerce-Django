@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
+
+from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
+
 from django.contrib.auth.models import User
 
 # =========================
