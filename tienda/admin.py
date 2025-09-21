@@ -34,10 +34,13 @@ class FechaCreacionFilter(admin.SimpleListFilter):
             return queryset.filter(fecha_creacion__date__gte=semana_inicio)
         return queryset
 # Admin de Producto
+
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'precio', 'stock', 'fecha_creacion')
     search_fields = ['nombre']
-    list_filter = ['fecha_creacion', StockBajoFilter, FechaCreacionFilter]
+    list_filter = ['fecha_creacion', StockBajoFilter, FechaCreacionFilter, 'categorias']
+
+admin.site.register(Categoria)
 # Ítems en línea para Carrito
 class ItemCarritoInline(admin.TabularInline):
     model = ItemCarrito
