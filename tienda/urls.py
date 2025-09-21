@@ -1,12 +1,14 @@
 from django.urls import path, include
-from .views import user_profile, ProductoViewSet, RegisterView, CarritoView, agregar_al_carrito, eliminar_del_carrito, actualizar_cantidad_carrito, crear_pedido, ListaPedidosUsuario, CategoriaViewSet
+from .views import user_profile
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+from .views import (
+    ProductoViewSet, RegisterView, CarritoView,
+    agregar_al_carrito, eliminar_del_carrito, actualizar_cantidad_carrito,
+    crear_pedido, ListaPedidosUsuario
+)
 router = DefaultRouter()
 router.register(r'productos', ProductoViewSet, basename='producto')
-router.register(r'categorias', CategoriaViewSet, basename='categoria')
-
 urlpatterns = [
     path('api/', include(router.urls)),
     # Auth & registro
@@ -21,6 +23,7 @@ urlpatterns = [
     # Pedidos
     path('api/pedido/crear/', crear_pedido, name='crear-pedido'),
     path('api/pedidos/', ListaPedidosUsuario.as_view(), name='lista-pedidos'),
-    # Perfil
+
+
     path("user/profile/", user_profile, name="user_profile"),
 ]
