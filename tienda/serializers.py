@@ -1,24 +1,30 @@
 from rest_framework import serializers
-
-from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
-
+from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido, Categoria
 from django.contrib.auth.models import User
+
+
+# =========================
+# CATEGORIA
+# =========================
+class CategoriaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categoria
+        fields = '__all__'
+
 
 # =========================
 # PRODUCTO
 # =========================
-
-class CategoriaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Categoria
-        fields = ['id', 'nombre']
-
 class ProductoSerializer(serializers.ModelSerializer):
-    categorias = CategoriaSerializer(many=True, read_only=True)
+    categoria = CategoriaSerializer(read_only=True)
+    categoria_id = serializers.PrimaryKeyRelatedField(
+        queryset=Categoria.objects.all(), source="categoria", write_only=True
+    )
 
     class Meta:
         model = Producto
         fields = '__all__'
+
 
 # =========================
 # ITEM CARRITO
@@ -30,6 +36,7 @@ class ItemCarritoSerializer(serializers.ModelSerializer):
         model = ItemCarrito
         fields = ['id', 'producto', 'cantidad', 'subtotal']
 
+
 # =========================
 # CARRITO
 # =========================
@@ -39,6 +46,7 @@ class CarritoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carrito
         fields = ['id', 'usuario', 'creado', 'items']
+
 
 # =========================
 # USUARIO
@@ -58,6 +66,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 # =========================
 # ITEM PEDIDO
 # =========================
@@ -71,6 +80,7 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
 
     def get_subtotal(self, obj):
         return obj.subtotal()
+
 
 # =========================
 # PEDIDO
