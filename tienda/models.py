@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Producto(models.Model):
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField()
@@ -8,9 +9,6 @@ class Producto(models.Model):
     stock = models.IntegerField()
     imagen = models.URLField(max_length=500)  # <-- cambiamos ImageField por URLField
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-
-    # Nuevo campo
-    categoria = models.CharField(max_length=100, default="General")
 
     def __str__(self):
         return self.nombre
