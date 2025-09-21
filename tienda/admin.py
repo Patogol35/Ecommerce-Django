@@ -1,12 +1,10 @@
 from django.contrib import admin
-from django.contrib.admin import RelatedOnlyFieldListFilter
 from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
 from datetime import datetime, timedelta
 
 # ---------------------------
 # Filtros personalizados
 # ---------------------------
-
 class StockBajoFilter(admin.SimpleListFilter):
     title = 'Stock'
     parameter_name = 'stock'
@@ -44,35 +42,35 @@ class FechaCreacionFilter(admin.SimpleListFilter):
         return queryset
 
 # ---------------------------
-# Admin Producto
+# Admin de Producto
 # ---------------------------
-
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'precio', 'stock', 'fecha_creacion')
+    list_display = ('nombre', 'precio', 'stock', 'fecha_creacion', 'mostrar_categorias')
     search_fields = ['nombre']
-    list_filter = [
-        'fecha_creacion',
-        StockBajoFilter,
-        FechaCreacionFilter,
-        ('categorias', RelatedOnlyFieldListFilter)  # 👈 Corregido para ManyToMany
-    ]
+    list_filter = ['fecha_creacion', StockBajoFilter, FechaCreacionFilter, 'categorias']
+
+    # Muestra las categorías en la lista
+    def mostrar_categorias(self, obj):
+        return ", ".join([c.nombre for c in obj.categorias.all()])
+    mostrar_categorias.short_description = 'Categorías'
 
 # ---------------------------
-# Admin Categoria
+# Admin de Categoría
 # ---------------------------
-
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ('nombre',)
     search_fields = ['nombre']
 
 # ---------------------------
-# Ítems en línea Carrito
+# Ítems en línea para Carrito
 # ---------------------------
-
 class ItemCarritoInline(admin.TabularInline):
     model = ItemCarrito
     extra = 0
 
+# ---------------------------
+# Admin de Carrito
+# ---------------------------
 class CarritoAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'creado')
     inlines = [ItemCarritoInline]
@@ -80,13 +78,15 @@ class CarritoAdmin(admin.ModelAdmin):
     list_filter = ['creado']
 
 # ---------------------------
-# Ítems en línea Pedido
+# Ítems en línea para Pedido
 # ---------------------------
-
 class ItemPedidoInline(admin.TabularInline):
     model = ItemPedido
     extra = 0
 
+# ---------------------------
+# Admin de Pedido
+# ---------------------------
 class PedidoAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'fecha')
     inlines = [ItemPedidoInline]
@@ -96,7 +96,6 @@ class PedidoAdmin(admin.ModelAdmin):
 # ---------------------------
 # Registro en admin
 # ---------------------------
-
 admin.site.register(Categoria, CategoriaAdmin)
 admin.site.register(Producto, ProductoAdmin)
 admin.site.register(Carrito, CarritoAdmin)
