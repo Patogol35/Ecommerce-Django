@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
+
+from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
 from datetime import datetime, timedelta
 # Filtro personalizado por stock
 class StockBajoFilter(admin.SimpleListFilter):
