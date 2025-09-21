@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+# =========================
+# CATEGORÍA
+# =========================
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(blank=True, null=True)
@@ -8,6 +11,10 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
+
+# =========================
+# PRODUCTO
+# =========================
 class Producto(models.Model):
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField()
@@ -26,6 +33,10 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
+
+# =========================
+# CARRITO
+# =========================
 class Carrito(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     creado = models.DateTimeField(auto_now_add=True)
@@ -33,6 +44,10 @@ class Carrito(models.Model):
     def __str__(self):
         return f'Carrito de {self.usuario.username}'
 
+
+# =========================
+# ITEM CARRITO
+# =========================
 class ItemCarrito(models.Model):
     carrito = models.ForeignKey(Carrito, related_name='items', on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
@@ -44,6 +59,10 @@ class ItemCarrito(models.Model):
     def subtotal(self):
         return self.cantidad * self.producto.precio
 
+
+# =========================
+# PEDIDO
+# =========================
 class Pedido(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha = models.DateTimeField(auto_now_add=True)
@@ -52,6 +71,10 @@ class Pedido(models.Model):
     def __str__(self):
         return f'Pedido #{self.id} - {self.usuario.username}'
 
+
+# =========================
+# ITEM PEDIDO
+# =========================
 class ItemPedido(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
