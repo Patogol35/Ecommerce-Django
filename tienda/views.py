@@ -14,7 +14,13 @@ from .serializers import (
     ItemCarritoSerializer,
     PedidoSerializer,
 )
+from .models import Producto, Categoria
+from .serializers import ProductoSerializer, CategoriaSerializer
+from rest_framework import viewsets
 
+class CategoriaViewSet(viewsets.ModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
 # ---------------------------
 # AGREGAR PRODUCTO AL CARRITO
 # ---------------------------
