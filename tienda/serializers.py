@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from django.contrib.auth.models import User
@@ -73,4 +72,4 @@ class PedidoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pedido
-        fields = ['id', 'usuario', 'fecha', 'total', 'pendiente', 'items']  # ✅ Incluido
+        fields = ['id', 'usuario', 'fecha', 'total', 'items']
