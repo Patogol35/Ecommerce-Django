@@ -1,6 +1,12 @@
 from django.contrib import admin
-from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from datetime import datetime, timedelta
+from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido, Categoria  # 👈 nuevo modelo
+
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'descripcion')
+    search_fields = ['nombre']
+
+admin.site.register(Categoria, CategoriaAdmin)  # 👈 registro en admin
 # Filtro personalizado por stock
 class StockBajoFilter(admin.SimpleListFilter):
     title = 'Stock'
