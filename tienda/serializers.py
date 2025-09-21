@@ -5,11 +5,18 @@ from django.contrib.auth.models import User
 # =========================
 # PRODUCTO
 # =========================
+
+class CategoriaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categoria
+        fields = ['id', 'nombre']
+
 class ProductoSerializer(serializers.ModelSerializer):
-    # Eliminamos get_imagen_url, usamos directamente el campo imagen
+    categorias = CategoriaSerializer(many=True, read_only=True)
+
     class Meta:
         model = Producto
-        fields = '__all__'  # incluye todos los campos del modelo
+        fields = '__all__'
 
 # =========================
 # ITEM CARRITO
