@@ -7,6 +7,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
+# 🔹 IMPORTS para filtros
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import ProductoFilter
+
 from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
 from .serializers import (
     ProductoSerializer,
@@ -26,11 +30,13 @@ class CategoriaViewSet(viewsets.ModelViewSet):
 
 
 # ---------------------------
-# CRUD PRODUCTOS
+# CRUD PRODUCTOS (con filtros)
 # ---------------------------
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
+    filter_backends = [DjangoFilterBackend]   # 🔹 Habilita filtros
+    filterset_class = ProductoFilter          # 🔹 Usa tu filtro personalizado
 
 
 # ---------------------------
