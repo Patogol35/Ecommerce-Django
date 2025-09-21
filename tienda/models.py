@@ -31,12 +31,10 @@ class ItemCarrito(models.Model):
     def subtotal(self):
         return self.cantidad * self.producto.precio
 
-
 class Pedido(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    pendiente = models.BooleanField(default=True)  # ✅ Nuevo campo
 
     def __str__(self):
         return f'Pedido #{self.id} - {self.usuario.username}'
