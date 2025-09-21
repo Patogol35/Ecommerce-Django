@@ -7,6 +7,12 @@ from .views import (
     agregar_al_carrito, eliminar_del_carrito, actualizar_cantidad_carrito,
     crear_pedido, ListaPedidosUsuario
 )
+from .views import ProductoViewSet, CategoriaViewSet
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'productos', ProductoViewSet, basename='producto')
+router.register(r'categorias', CategoriaViewSet, basename='categoria')  # 👈 nueva ruta
 router = DefaultRouter()
 router.register(r'productos', ProductoViewSet, basename='producto')
 urlpatterns = [
