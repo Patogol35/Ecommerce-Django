@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from django.contrib.auth.models import User
+from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido, Categoria
 
 # =========================
 # PRODUCTO
@@ -66,10 +66,22 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
 # =========================
 # PEDIDO
 # =========================
-class PedidoSerializer(serializers.ModelSerializer):
-    items = ItemPedidoSerializer(many=True, read_only=True)
-    total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+
+class CategoriaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categoria
+        fields = ['id', 'nombre', 'descripcion']
+
+class ProductoSerializer(serializers.ModelSerializer):
+    categoria = CategoriaSerializer(read_only=True)  # para mostrar datos completos
+    categoria_id = serializers.PrimaryKeyRelatedField(
+        queryset=Categoria.objects.all(),
+        source='categoria',
+        write_only=True,
+        required=False
+    )
 
     class Meta:
-        model = Pedido
-        fields = ['id', 'usuario', 'fecha', 'total', 'items']
+        model = Producto
+        fields = '__all__'  # incluye categoria y categoria_id
