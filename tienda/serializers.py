@@ -2,13 +2,14 @@ from rest_framework import serializers
 from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from django.contrib.auth.models import User
 
+
 # =========================
 # PRODUCTO
 # =========================
 class ProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto
-        fields = '__all__'  # incluye todos los campos del modelo
+        fields = '__all__'
 
 
 # =========================
@@ -16,10 +17,14 @@ class ProductoSerializer(serializers.ModelSerializer):
 # =========================
 class ItemCarritoSerializer(serializers.ModelSerializer):
     producto = ProductoSerializer(read_only=True)
+    subtotal = serializers.SerializerMethodField()
 
     class Meta:
         model = ItemCarrito
         fields = ['id', 'producto', 'cantidad', 'subtotal']
+
+    def get_subtotal(self, obj):
+        return obj.subtotal()
 
 
 # =========================
@@ -71,6 +76,7 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
 # PEDIDO
 # =========================
 class PedidoSerializer(serializers.ModelSerializer):
+    usuario = serializers.StringRelatedField()  # 🔹 muestra username en lugar de id completo
     items = ItemPedidoSerializer(many=True, read_only=True)
     total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
