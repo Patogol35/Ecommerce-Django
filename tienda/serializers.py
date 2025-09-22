@@ -1,31 +1,20 @@
+
 from rest_framework import serializers
-from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido, Categoria
+from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from django.contrib.auth.models import User
 
-
-# ==== Categoría ====
-
-class CategoriaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Categoria
-        fields = '__all__'
-
-
-# ==== Producto ====
-
+# =========================
+# PRODUCTO
+# =========================
 class ProductoSerializer(serializers.ModelSerializer):
-    categoria = CategoriaSerializer(read_only=True)
-    categoria_id = serializers.PrimaryKeyRelatedField(
-        queryset=Categoria.objects.all(), source="categoria", write_only=True
-    )
-
+    # Eliminamos get_imagen_url, usamos directamente el campo imagen
     class Meta:
         model = Producto
-        fields = '__all__'
+        fields = '__all__'  # incluye todos los campos del modelo
 
-
-# ==== Item Carrito ====
-
+# =========================
+# ITEM CARRITO
+# =========================
 class ItemCarritoSerializer(serializers.ModelSerializer):
     producto = ProductoSerializer(read_only=True)
 
@@ -33,9 +22,9 @@ class ItemCarritoSerializer(serializers.ModelSerializer):
         model = ItemCarrito
         fields = ['id', 'producto', 'cantidad', 'subtotal']
 
-
-# ==== Carrito ====
-
+# =========================
+# CARRITO
+# =========================
 class CarritoSerializer(serializers.ModelSerializer):
     items = ItemCarritoSerializer(many=True, read_only=True)
 
@@ -43,9 +32,9 @@ class CarritoSerializer(serializers.ModelSerializer):
         model = Carrito
         fields = ['id', 'usuario', 'creado', 'items']
 
-
-# ==== Usuario ====
-
+# =========================
+# USUARIO
+# =========================
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -61,9 +50,9 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
-
-# ==== Item Pedido ====
-
+# =========================
+# ITEM PEDIDO
+# =========================
 class ItemPedidoSerializer(serializers.ModelSerializer):
     producto = ProductoSerializer(read_only=True)
     subtotal = serializers.SerializerMethodField()
@@ -75,9 +64,9 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
     def get_subtotal(self, obj):
         return obj.subtotal()
 
-
-# ==== Pedido ====
-
+# =========================
+# PEDIDO
+# =========================
 class PedidoSerializer(serializers.ModelSerializer):
     items = ItemPedidoSerializer(many=True, read_only=True)
     total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
