@@ -118,7 +118,7 @@ class ProductoViewSet(viewsets.ModelViewSet):
 
 
 # ---------------------------
-# CREAR PEDIDO (con traceback en la respuesta)
+# CREAR PEDIDO (con pendiente=True y traceback)
 # ---------------------------
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -136,7 +136,9 @@ def crear_pedido(request):
 
         with transaction.atomic():
             total = sum((Decimal(it.producto.precio) * it.cantidad for it in items), Decimal('0'))
-            pedido = Pedido.objects.create(usuario=request.user, total=total)
+
+            # 🔹 Fix: pendiente=True
+            pedido = Pedido.objects.create(usuario=request.user, total=total, pendiente=True)
 
             for it in items:
                 prod = it.producto
@@ -158,7 +160,7 @@ def crear_pedido(request):
         return Response(
             {
                 "error": str(e),
-                "traceback": tb,  # 🔹 Aquí verás todo el traceback en Render
+                "traceback": tb,
             },
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
@@ -168,7 +170,7 @@ def crear_pedido(request):
 # LISTAR PEDIDOS DEL USUARIO (con paginación personalizada)
 # ---------------------------
 class PedidoPagination(PageNumberPagination):
-    page_size = 10  # 🔹 Cambia este número para mostrar menos/más pedidos
+    page_size = 10
 
 
 class ListaPedidosUsuario(generics.ListAPIView):
