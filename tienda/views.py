@@ -9,13 +9,16 @@ from rest_framework.pagination import PageNumberPagination
 
 from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from .serializers import (
-    ProductoSerializer, CarritoSerializer, UserSerializer,
-    ItemCarritoSerializer, PedidoSerializer,
+    ProductoSerializer,
+    CarritoSerializer,
+    UserSerializer,
+    ItemCarritoSerializer,
+    PedidoSerializer,
 )
 
-# =========================
+# =====================
 # AGREGAR PRODUCTO AL CARRITO
-# =========================
+# =====================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def agregar_al_carrito(request):
@@ -48,10 +51,9 @@ def agregar_al_carrito(request):
 
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_201_CREATED)
 
-
-# =========================
+# =====================
 # ELIMINAR ITEM DEL CARRITO
-# =========================
+# =====================
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def eliminar_del_carrito(request, item_id):
@@ -62,10 +64,9 @@ def eliminar_del_carrito(request, item_id):
     except ItemCarrito.DoesNotExist:
         return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
 
-
-# =========================
+# =====================
 # ACTUALIZAR CANTIDAD
-# =========================
+# =====================
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def actualizar_cantidad_carrito(request, item_id):
@@ -87,10 +88,9 @@ def actualizar_cantidad_carrito(request, item_id):
     item.save()
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_200_OK)
 
-
-# =========================
+# =====================
 # VER CARRITO
-# =========================
+# =====================
 class CarritoView(generics.RetrieveAPIView):
     serializer_class = CarritoSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -99,26 +99,23 @@ class CarritoView(generics.RetrieveAPIView):
         carrito, _ = Carrito.objects.get_or_create(usuario=self.request.user)
         return carrito
 
-
-# =========================
+# =====================
 # REGISTRO USUARIOS
-# =========================
+# =====================
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-
-# =========================
+# =====================
 # CRUD PRODUCTOS
-# =========================
+# =====================
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
 
-
-# =========================
-# CREAR PEDIDO
-# =========================
+# =====================
+# CREAR PEDIDO (CORREGIDO)
+# =====================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def crear_pedido(request):
@@ -128,12 +125,16 @@ def crear_pedido(request):
     if not items:
         return Response({'error': 'El carrito está vacío'}, status=status.HTTP_400_BAD_REQUEST)
 
-    for it in items:
-        if it.producto.stock < it.cantidad:
-            return Response({'error': f'Stock insuficiente para {it.producto.nombre}'}, status=status.HTTP_400_BAD_REQUEST)
-
+    # Validaciones y creación segura del pedido
     with transaction.atomic():
-        total = sum((Decimal(it.producto.precio) * it.cantidad for it in items), Decimal('0'))
+        total = Decimal('0')
+        for it in items:
+            if it.producto is None:
+                return Response({'error': f'Producto {it.id} ya no existe'}, status=status.HTTP_400_BAD_REQUEST)
+            if it.producto.stock < it.cantidad:
+                return Response({'error': f'Stock insuficiente para {it.producto.nombre}'}, status=status.HTTP_400_BAD_REQUEST)
+            total += it.producto.precio * it.cantidad
+
         pedido = Pedido.objects.create(usuario=request.user, total=total)
 
         for it in items:
@@ -151,13 +152,11 @@ def crear_pedido(request):
 
     return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
 
-
-# =========================
-# LISTAR PEDIDOS DEL USUARIO
-# =========================
+# =====================
+# LISTAR PEDIDOS DEL USUARIO (con paginación personalizada)
+# =====================
 class PedidoPagination(PageNumberPagination):
-    page_size = 10  # 🔹 Cambia este número para mostrar menos/más pedidos
-
+    page_size = 10  # 🔹 Cambia este número si quieres
 
 class ListaPedidosUsuario(generics.ListAPIView):
     serializer_class = PedidoSerializer
@@ -167,10 +166,9 @@ class ListaPedidosUsuario(generics.ListAPIView):
     def get_queryset(self):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
 
-
-# =========================
-# PERFIL DE USUARIO
-# =========================
+# =====================
+# PERFIL USUARIO
+# =====================
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
