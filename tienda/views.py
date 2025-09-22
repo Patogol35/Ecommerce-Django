@@ -6,52 +6,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-
-from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
+from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from .serializers import (
     ProductoSerializer,
-    CategoriaSerializer,
     CarritoSerializer,
     UserSerializer,
     ItemCarritoSerializer,
     PedidoSerializer,
 )
-
-# ---------------------------
-# CRUD CATEGORÍAS
-# ---------------------------
-class CategoriaViewSet(viewsets.ModelViewSet):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-
-
-# ---------------------------
-# CRUD PRODUCTOS
-# ---------------------------
-class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.all()
-    serializer_class = ProductoSerializer
-
-
-# ---------------------------
-# REGISTRO USUARIOS
-# ---------------------------
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-# ---------------------------
-# VER CARRITO
-# ---------------------------
-class CarritoView(generics.RetrieveAPIView):
-    serializer_class = CarritoSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self):
-        carrito, _ = Carrito.objects.get_or_create(usuario=self.request.user)
-        return carrito
-
 
 # ---------------------------
 # AGREGAR PRODUCTO AL CARRITO
@@ -102,7 +64,7 @@ def eliminar_del_carrito(request, item_id):
 
 
 # ---------------------------
-# ACTUALIZAR CANTIDAD DEL CARRITO
+# ACTUALIZAR CANTIDAD
 # ---------------------------
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -124,6 +86,34 @@ def actualizar_cantidad_carrito(request, item_id):
     item.cantidad = cantidad
     item.save()
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_200_OK)
+
+
+# ---------------------------
+# VER CARRITO
+# ---------------------------
+class CarritoView(generics.RetrieveAPIView):
+    serializer_class = CarritoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        carrito, _ = Carrito.objects.get_or_create(usuario=self.request.user)
+        return carrito
+
+
+# ---------------------------
+# REGISTRO USUARIOS
+# ---------------------------
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+# ---------------------------
+# CRUD PRODUCTOS
+# ---------------------------
+class ProductoViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
 
 
 # ---------------------------
@@ -177,9 +167,7 @@ class ListaPedidosUsuario(generics.ListAPIView):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
 
 
-# ---------------------------
-# PERFIL DE USUARIO
-# ---------------------------
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
