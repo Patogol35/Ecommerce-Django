@@ -2,9 +2,9 @@ from django.contrib import admin
 from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido, Categoria
 from datetime import datetime, timedelta
 
-# --------------------------
-# FILTROS PERSONALIZADOS
-# --------------------------
+
+# ==== Filtros personalizados ====
+
 class StockBajoFilter(admin.SimpleListFilter):
     title = 'Stock'
     parameter_name = 'stock'
@@ -43,18 +43,17 @@ class FechaCreacionFilter(admin.SimpleListFilter):
         return queryset
 
 
-# --------------------------
-# ADMIN MODELS
-# --------------------------
+# ==== Admins ====
+
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'descripcion')
     search_fields = ['nombre']
 
 
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'precio', 'stock', 'categoria', 'fecha_creacion')
+    list_display = ('nombre', 'precio', 'stock', 'fecha_creacion', 'categoria')
     search_fields = ['nombre']
-    list_filter = ['categoria', 'fecha_creacion', StockBajoFilter, FechaCreacionFilter]
+    list_filter = ['fecha_creacion', 'categoria', StockBajoFilter, FechaCreacionFilter]
 
 
 class ItemCarritoInline(admin.TabularInline):
@@ -81,9 +80,7 @@ class PedidoAdmin(admin.ModelAdmin):
     list_filter = ['fecha']
 
 
-# --------------------------
-# REGISTRO FINAL
-# --------------------------
+# ==== Registro ====
 admin.site.register(Categoria, CategoriaAdmin)
 admin.site.register(Producto, ProductoAdmin)
 admin.site.register(Carrito, CarritoAdmin)
