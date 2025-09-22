@@ -1,3 +1,4 @@
+
 from rest_framework import serializers
 from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from django.contrib.auth.models import User
@@ -6,10 +7,10 @@ from django.contrib.auth.models import User
 # PRODUCTO
 # =========================
 class ProductoSerializer(serializers.ModelSerializer):
+    # Eliminamos get_imagen_url, usamos directamente el campo imagen
     class Meta:
         model = Producto
-        fields = '__all__'
-
+        fields = '__all__'  # incluye todos los campos del modelo
 
 # =========================
 # ITEM CARRITO
@@ -21,7 +22,6 @@ class ItemCarritoSerializer(serializers.ModelSerializer):
         model = ItemCarrito
         fields = ['id', 'producto', 'cantidad', 'subtotal']
 
-
 # =========================
 # CARRITO
 # =========================
@@ -31,7 +31,6 @@ class CarritoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carrito
         fields = ['id', 'usuario', 'creado', 'items']
-
 
 # =========================
 # USUARIO
@@ -51,7 +50,6 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
-
 # =========================
 # ITEM PEDIDO
 # =========================
@@ -66,13 +64,11 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
     def get_subtotal(self, obj):
         return obj.subtotal()
 
-
 # =========================
 # PEDIDO
 # =========================
 class PedidoSerializer(serializers.ModelSerializer):
     items = ItemPedidoSerializer(many=True, read_only=True)
-    usuario = UserSerializer(read_only=True)   # 🔹 Anidamos datos del usuario
     total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
