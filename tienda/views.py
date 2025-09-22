@@ -109,17 +109,11 @@ class RegisterView(generics.CreateAPIView):
 
 
 # ---------------------------
-# CRUD PRODUCTOS (con filtro por categoría)
+# CRUD PRODUCTOS
 # ---------------------------
 class ProductoViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
-
-    def get_queryset(self):
-        queryset = Producto.objects.all()
-        categoria = self.request.query_params.get('categoria')
-        if categoria:
-            queryset = queryset.filter(categoria=categoria.upper())
-        return queryset
 
 
 # ---------------------------
@@ -173,9 +167,7 @@ class ListaPedidosUsuario(generics.ListAPIView):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
 
 
-# ---------------------------
-# PERFIL DE USUARIO
-# ---------------------------
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
