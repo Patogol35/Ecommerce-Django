@@ -51,9 +51,13 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'precio', 'stock', 'fecha_creacion', 'categoria')
+    list_display = ('nombre', 'precio', 'stock', 'fecha_creacion', 'mostrar_categoria')
     search_fields = ['nombre']
     list_filter = ['fecha_creacion', 'categoria', StockBajoFilter, FechaCreacionFilter]
+
+    def mostrar_categoria(self, obj):
+        return obj.categoria.nombre if obj.categoria else "Sin categoría"
+    mostrar_categoria.short_description = "Categoría"
 
 
 class ItemCarritoInline(admin.TabularInline):
