@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
+from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido, Categoria 
 from datetime import datetime, timedelta
 # Filtro personalizado por stock
 class StockBajoFilter(admin.SimpleListFilter):
@@ -33,11 +33,15 @@ class FechaCreacionFilter(admin.SimpleListFilter):
             semana_inicio = hoy - timedelta(days=hoy.weekday())
             return queryset.filter(fecha_creacion__date__gte=semana_inicio)
         return queryset
-# Admin de Producto
+# Admin de Productos
+
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'precio', 'stock', 'fecha_creacion')
+    list_display = ('nombre', 'precio', 'stock', 'categoria', 'fecha_creacion')
     search_fields = ['nombre']
-    list_filter = ['fecha_creacion', StockBajoFilter, FechaCreacionFilter]
+    list_filter = ['categoria', 'fecha_creacion', StockBajoFilter, FechaCreacionFilter]
+
+admin.site.register(Categoria)
+admin.site.register(Producto, ProductoAdmin)
 # Ítems en línea para Carrito
 class ItemCarritoInline(admin.TabularInline):
     model = ItemCarrito
