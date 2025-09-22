@@ -1,49 +1,6 @@
 from django.contrib import admin
 from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido, Categoria
-from datetime import datetime, timedelta
 
-
-# ==== Filtros personalizados ====
-
-class StockBajoFilter(admin.SimpleListFilter):
-    title = 'Stock'
-    parameter_name = 'stock'
-
-    def lookups(self, request, model_admin):
-        return [
-            ('bajo', 'Stock bajo (≤5)'),
-            ('sin_stock', 'Sin stock'),
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value() == 'bajo':
-            return queryset.filter(stock__lte=5, stock__gt=0)
-        if self.value() == 'sin_stock':
-            return queryset.filter(stock=0)
-        return queryset
-
-
-class FechaCreacionFilter(admin.SimpleListFilter):
-    title = 'Fecha de creación'
-    parameter_name = 'fecha_creacion_custom'
-
-    def lookups(self, request, model_admin):
-        return [
-            ('hoy', 'Hoy'),
-            ('semana', 'Esta semana'),
-        ]
-
-    def queryset(self, request, queryset):
-        hoy = datetime.now().date()
-        if self.value() == 'hoy':
-            return queryset.filter(fecha_creacion__date=hoy)
-        if self.value() == 'semana':
-            semana_inicio = hoy - timedelta(days=hoy.weekday())
-            return queryset.filter(fecha_creacion__date__gte=semana_inicio)
-        return queryset
-
-
-# ==== Admins ====
 
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'descripcion')
@@ -53,7 +10,6 @@ class CategoriaAdmin(admin.ModelAdmin):
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'precio', 'stock', 'fecha_creacion', 'mostrar_categoria')
     search_fields = ['nombre']
-    list_filter = ['fecha_creacion', 'categoria', StockBajoFilter, FechaCreacionFilter]
 
     def mostrar_categoria(self, obj):
         return obj.categoria.nombre if obj.categoria else "Sin categoría"
@@ -68,8 +24,6 @@ class ItemCarritoInline(admin.TabularInline):
 class CarritoAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'creado')
     inlines = [ItemCarritoInline]
-    search_fields = ['usuario__username']
-    list_filter = ['creado']
 
 
 class ItemPedidoInline(admin.TabularInline):
@@ -80,8 +34,6 @@ class ItemPedidoInline(admin.TabularInline):
 class PedidoAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'fecha')
     inlines = [ItemPedidoInline]
-    search_fields = ['usuario__username']
-    list_filter = ['fecha']
 
 
 # ==== Registro ====
