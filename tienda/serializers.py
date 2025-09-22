@@ -1,16 +1,30 @@
 
 from rest_framework import serializers
-from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
+from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido, Categoria
 from django.contrib.auth.models import User
 
 # =========================
 # PRODUCTO
 # =========================
+
+
+class CategoriaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categoria
+        fields = '__all__'
+
+
 class ProductoSerializer(serializers.ModelSerializer):
-    # Eliminamos get_imagen_url, usamos directamente el campo imagen
+    categoria = CategoriaSerializer(read_only=True)  # devuelve info de categoría
+    categoria_id = serializers.PrimaryKeyRelatedField(
+        queryset=Categoria.objects.all(),
+        source="categoria",
+        write_only=True
+    )
+
     class Meta:
         model = Producto
-        fields = '__all__'  # incluye todos los campos del modelo
+        fields = '__all__'
 
 # =========================
 # ITEM CARRITO
