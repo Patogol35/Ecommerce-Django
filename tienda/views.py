@@ -6,23 +6,22 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+
 from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from .serializers import (
-    ProductoSerializer,
-    CarritoSerializer,
-    UserSerializer,
-    ItemCarritoSerializer,
-    PedidoSerializer,
+    ProductoSerializer, CarritoSerializer, UserSerializer,
+    ItemCarritoSerializer, PedidoSerializer,
 )
 
-# ---------------------------
+# =========================
 # AGREGAR PRODUCTO AL CARRITO
-# ---------------------------
+# =========================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def agregar_al_carrito(request):
     producto_id = request.data.get('producto_id')
     cantidad = int(request.data.get('cantidad', 1))
+
     try:
         producto = Producto.objects.get(id=producto_id)
     except Producto.DoesNotExist:
@@ -34,6 +33,7 @@ def agregar_al_carrito(request):
         producto=producto,
         defaults={'cantidad': max(cantidad, 0)}
     )
+
     if not creado:
         nueva_cantidad = item.cantidad + cantidad
         if nueva_cantidad <= 0:
@@ -49,9 +49,9 @@ def agregar_al_carrito(request):
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_201_CREATED)
 
 
-# ---------------------------
+# =========================
 # ELIMINAR ITEM DEL CARRITO
-# ---------------------------
+# =========================
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def eliminar_del_carrito(request, item_id):
@@ -63,9 +63,9 @@ def eliminar_del_carrito(request, item_id):
         return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
 
 
-# ---------------------------
+# =========================
 # ACTUALIZAR CANTIDAD
-# ---------------------------
+# =========================
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def actualizar_cantidad_carrito(request, item_id):
@@ -88,9 +88,9 @@ def actualizar_cantidad_carrito(request, item_id):
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_200_OK)
 
 
-# ---------------------------
+# =========================
 # VER CARRITO
-# ---------------------------
+# =========================
 class CarritoView(generics.RetrieveAPIView):
     serializer_class = CarritoSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -100,25 +100,25 @@ class CarritoView(generics.RetrieveAPIView):
         return carrito
 
 
-# ---------------------------
+# =========================
 # REGISTRO USUARIOS
-# ---------------------------
+# =========================
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-# ---------------------------
+# =========================
 # CRUD PRODUCTOS
-# ---------------------------
+# =========================
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
 
 
-# ---------------------------
+# =========================
 # CREAR PEDIDO
-# ---------------------------
+# =========================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def crear_pedido(request):
@@ -152,11 +152,12 @@ def crear_pedido(request):
     return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
 
 
-# ---------------------------
-# LISTAR PEDIDOS DEL USUARIO (con paginación personalizada)
-# ---------------------------
+# =========================
+# LISTAR PEDIDOS DEL USUARIO
+# =========================
 class PedidoPagination(PageNumberPagination):
     page_size = 10  # 🔹 Cambia este número para mostrar menos/más pedidos
+
 
 class ListaPedidosUsuario(generics.ListAPIView):
     serializer_class = PedidoSerializer
@@ -167,7 +168,9 @@ class ListaPedidosUsuario(generics.ListAPIView):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
 
 
-
+# =========================
+# PERFIL DE USUARIO
+# =========================
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
