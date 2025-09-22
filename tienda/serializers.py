@@ -1,34 +1,16 @@
+
 from rest_framework import serializers
+from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from django.contrib.auth.models import User
-from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido, Categoria
-
-# =========================
-# CATEGORIA
-# =========================
-class CategoriaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Categoria
-        fields = ['id', 'nombre', 'descripcion']
-
 
 # =========================
 # PRODUCTO
 # =========================
 class ProductoSerializer(serializers.ModelSerializer):
-    # Muestra datos completos de la categoría
-    categoria = CategoriaSerializer(read_only=True)
-    # Permite enviar solo el ID para crear/editar
-    categoria_id = serializers.PrimaryKeyRelatedField(
-        queryset=Categoria.objects.all(),
-        source='categoria',
-        write_only=True,
-        required=False
-    )
-
+    # Eliminamos get_imagen_url, usamos directamente el campo imagen
     class Meta:
         model = Producto
-        fields = '__all__'
-
+        fields = '__all__'  # incluye todos los campos del modelo
 
 # =========================
 # ITEM CARRITO
@@ -40,7 +22,6 @@ class ItemCarritoSerializer(serializers.ModelSerializer):
         model = ItemCarrito
         fields = ['id', 'producto', 'cantidad', 'subtotal']
 
-
 # =========================
 # CARRITO
 # =========================
@@ -50,7 +31,6 @@ class CarritoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carrito
         fields = ['id', 'usuario', 'creado', 'items']
-
 
 # =========================
 # USUARIO
@@ -63,12 +43,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'password']
 
     def create(self, validated_data):
-        return User.objects.create_user(
+        user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email'),
             password=validated_data['password']
         )
-
+        return user
 
 # =========================
 # ITEM PEDIDO
@@ -84,12 +64,12 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
     def get_subtotal(self, obj):
         return obj.subtotal()
 
-
 # =========================
 # PEDIDO
 # =========================
 class PedidoSerializer(serializers.ModelSerializer):
-    items = ItemPedidoSerializer(source='itempedido_set', many=True, read_only=True)
+    items = ItemPedidoSerializer(many=True, read_only=True)
+    total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Pedido
