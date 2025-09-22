@@ -6,34 +6,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
+from .models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from .serializers import (
     ProductoSerializer,
-    CategoriaSerializer,
     CarritoSerializer,
     UserSerializer,
     ItemCarritoSerializer,
     PedidoSerializer,
 )
-from .filters import ProductoFilter
-
-
-# ---------------------------
-# CRUD PRODUCTOS
-# ---------------------------
-class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.all()
-    serializer_class = ProductoSerializer
-    filterset_class = ProductoFilter
-
-
-# ---------------------------
-# CRUD CATEGORÍAS
-# ---------------------------
-class CategoriaViewSet(viewsets.ModelViewSet):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-
 
 # ---------------------------
 # AGREGAR PRODUCTO AL CARRITO
@@ -129,6 +109,14 @@ class RegisterView(generics.CreateAPIView):
 
 
 # ---------------------------
+# CRUD PRODUCTOS
+# ---------------------------
+class ProductoViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
+
+
+# ---------------------------
 # CREAR PEDIDO
 # ---------------------------
 @api_view(['POST'])
@@ -165,11 +153,10 @@ def crear_pedido(request):
 
 
 # ---------------------------
-# LISTAR PEDIDOS DEL USUARIO
+# LISTAR PEDIDOS DEL USUARIO (con paginación personalizada)
 # ---------------------------
 class PedidoPagination(PageNumberPagination):
-    page_size = 10
-
+    page_size = 10  # 🔹 Cambia este número para mostrar menos/más pedidos
 
 class ListaPedidosUsuario(generics.ListAPIView):
     serializer_class = PedidoSerializer
@@ -180,9 +167,7 @@ class ListaPedidosUsuario(generics.ListAPIView):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
 
 
-# ---------------------------
-# PERFIL USUARIO
-# ---------------------------
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
