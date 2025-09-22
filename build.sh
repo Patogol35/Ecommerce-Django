@@ -8,11 +8,8 @@ pip install -r requirements.txt
 # Recoge archivos estáticos
 python manage.py collectstatic --noinput
 
-# Genera migraciones (muy importante cuando cambias modelos)
-python manage.py makemigrations --noinput
-
 # Aplica migraciones
-python manage.py migrate --noinput
+python manage.py migrate
 
 # Crear superusuario automático si no existe
 python manage.py shell << END
