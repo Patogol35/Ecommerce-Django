@@ -117,46 +117,53 @@ class ProductoViewSet(viewsets.ModelViewSet):
 
 
 # ---------------------------
-# CREAR PEDIDO
+# CREAR PEDIDO (con captura de errores)
 # ---------------------------
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def crear_pedido(request):
-    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
-    items = list(carrito.items.select_related('producto'))
+    try:
+        carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+        items = list(carrito.items.select_related('producto'))
 
-    if not items:
-        return Response({'error': 'El carrito está vacío'}, status=status.HTTP_400_BAD_REQUEST)
-
-    for it in items:
-        if it.producto.stock < it.cantidad:
-            return Response({'error': f'Stock insuficiente para {it.producto.nombre}'}, status=status.HTTP_400_BAD_REQUEST)
-
-    with transaction.atomic():
-        total = sum((Decimal(it.producto.precio) * it.cantidad for it in items), Decimal('0'))
-        pedido = Pedido.objects.create(usuario=request.user, total=total)
+        if not items:
+            return Response({'error': 'El carrito está vacío'}, status=status.HTTP_400_BAD_REQUEST)
 
         for it in items:
-            prod = it.producto
-            prod.stock -= it.cantidad
-            prod.save()
-            ItemPedido.objects.create(
-                pedido=pedido,
-                producto=prod,
-                cantidad=it.cantidad,
-                precio_unitario=prod.precio
-            )
+            if it.producto.stock < it.cantidad:
+                return Response({'error': f'Stock insuficiente para {it.producto.nombre}'}, status=status.HTTP_400_BAD_REQUEST)
 
-        carrito.items.all().delete()
+        with transaction.atomic():
+            total = sum((it.producto.precio * it.cantidad for it in items), Decimal('0'))
+            pedido = Pedido.objects.create(usuario=request.user, total=total)
 
-    return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
+            for it in items:
+                prod = it.producto
+                prod.stock -= it.cantidad
+                prod.save()
+                ItemPedido.objects.create(
+                    pedido=pedido,
+                    producto=prod,
+                    cantidad=it.cantidad,
+                    precio_unitario=prod.precio
+                )
+
+            carrito.items.all().delete()
+
+        return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        import traceback
+        traceback_str = traceback.format_exc()
+        print(traceback_str)  # 👈 imprime la traza completa en la consola del back
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # ---------------------------
 # LISTAR PEDIDOS DEL USUARIO (con paginación personalizada)
 # ---------------------------
 class PedidoPagination(PageNumberPagination):
-    page_size = 10  # 🔹 Cambia este número para mostrar menos/más pedidos
+    page_size = 10
 
 class ListaPedidosUsuario(generics.ListAPIView):
     serializer_class = PedidoSerializer
@@ -167,7 +174,9 @@ class ListaPedidosUsuario(generics.ListAPIView):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
 
 
-
+# ---------------------------
+# PERFIL DE USUARIO
+# ---------------------------
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
