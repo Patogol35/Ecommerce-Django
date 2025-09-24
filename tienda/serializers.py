@@ -33,10 +33,14 @@ class ProductoSerializer(serializers.ModelSerializer):
 # =========================
 class ItemCarritoSerializer(serializers.ModelSerializer):
     producto = ProductoSerializer(read_only=True)
+    subtotal = serializers.SerializerMethodField()
 
     class Meta:
         model = ItemCarrito
         fields = ['id', 'producto', 'cantidad', 'subtotal']
+
+    def get_subtotal(self, obj):
+        return obj.subtotal()
 
 
 # =========================
