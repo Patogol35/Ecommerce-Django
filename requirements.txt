@@ -4,3 +4,6 @@ djangorestframework-simplejwt==5.3.1
 django-cors-headers==4.3.1
 django-filter==24.3
 pillow==10.4.0
+gunicorn
+psycopg2-binary
+dj-database-url
