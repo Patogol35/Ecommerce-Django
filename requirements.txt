@@ -7,4 +7,3 @@ pillow==10.4.0
 gunicorn
 psycopg2-binary
 dj-database-url
-django-jazzmin==3.0.0
