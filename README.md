@@ -76,6 +76,8 @@ Procfile → (opcional en Render) usado para definir cómo iniciar la app con Gu
 🗄️ Base de datos con Supabase
 
 En este proyecto la base de datos se aloja en Supabase, que provee una URL, esa URL se copia en la variable DATABASE_URL en Render para que Django pueda conectarse.
+postgresql://postgres.sxnrtomwzoawegjkdzpl:[YOUR-PASSWORD]@aws-1-us-east-2.pooler.supabase.com:5432/postgres
+reemplazar con tu contraseña de supabase 
 
 
 ⚙️ Configuración en Render
