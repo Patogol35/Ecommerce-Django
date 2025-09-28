@@ -2,6 +2,10 @@
 
 Aplicación desarrollada con Django + Django REST Framework que provee el backend de la tienda en línea.
 
+El frontend se encuentra disponible aquí:
+
+👉 https://github.com/Patogol35/Ecommerce-React
+
 ---
 
 ✨ Características principales
@@ -40,7 +44,6 @@ Integración con frontend en React + Vite
 
 - Soporte CORS para conexión directa con la aplicación cliente.
 
-
 ---
 
 ⚙️ Tecnologías utilizadas 
@@ -59,12 +62,7 @@ Integración con frontend en React + Vite
 
 Configuración 
 
-El backend se desplegó en Render con base de datos alojada en Supabase.
-
-
-📂 Archivos adicionales para Render
-
-Durante la configuración se añadieron/editaron estos archivos del Backend:
+Para produccion debes crear los siguientes archivos en la raíz del proyecto para Render
 
 render.yaml → define el servicio, comandos de build y variables.
 
