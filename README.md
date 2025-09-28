@@ -62,51 +62,78 @@ Integración con frontend en React + Vite
 
 Configuración 
 
-Para produccion debes crear los siguientes archivos en la raíz del proyecto para Render
+
+Quedaría mucho más claro y ordenado así 👇
+
+
+---
+
+Deploy en Render con Django + Supabase
+
+Para poner tu backend en producción con Render necesitas algunos archivos clave en la raíz del proyecto y la configuración correcta de variables de entorno.
+
+1. Archivos necesarios en la raíz
 
 render.yaml → define el servicio, comandos de build y variables.
 
-build.sh → script para instalar dependencias y ejecutar migraciones automáticamente antes del deploy.
+build.sh → script que instala dependencias y ejecuta migraciones automáticamente antes de cada deploy.
 
-requirements.txt → actualizado para asegurar que todas las dependencias de Django estén instaladas en Render.
+requirements.txt → actualizado con todas las dependencias de Django y librerías necesarias.
 
-Procfile → (opcional en Render) usado para definir cómo iniciar la app con Gunicorn.
+Procfile (opcional en Render) → especifica cómo iniciar la app con Gunicorn.
+
+2. Base de datos en Supabase
+
+Este proyecto utiliza Supabase como base de datos.
+Render necesita la URL de conexión, que debes copiar en la variable de entorno DATABASE_URL.
+
+Formato de ejemplo:
+
+postgresql://postgres.sxnrtomwzoawegjkdzpl:[TU-PASSWORD]@aws-1-us-east-2.pooler.supabase.com:5432/postgres
+
+Reemplaza [TU-PASSWORD] con tu contraseña real de Supabase.
 
 
-🗄️ Base de datos con Supabase
+3. Configuración en Render
 
-En este proyecto la base de datos se aloja en Supabase, que provee una URL, esa URL se copia en la variable DATABASE_URL en Render para que Django pueda conectarse.
-postgresql://postgres.sxnrtomwzoawegjkdzpl:[YOUR-PASSWORD]@aws-1-us-east-2.pooler.supabase.com:5432/postgres
-reemplazar con tu contraseña de supabase 
+- Sube tu proyecto a GitHub.
 
+- En Render, crea un nuevo Web Service.
 
-⚙️ Configuración en Render
+- Conecta tu repositorio de GitHub.
 
-1. Sube tu proyecto a GitHub.
+- Configura los comandos:
 
-2. En Render crea un nuevo Web Service.
+Build Command:
 
-3. Conecta el repositorio a Render
+./build.sh
 
-4. Configura:
+Start Command:
 
-Build Command: ./build.sh
+gunicorn tienda_backend.wsgi:application
 
-Start Command: gunicorn tienda_backend.wsgi:application
+- Agrega las variables de entorno en Render:
 
-5. En Environment variables de Render agrega tres variables de entorno:
+DATABASE_URL → la URL de tu Supabase
 
-DATABASE_URL → tu URL de Supabase
-
-SECRET_KEY → un valor fuerte
+SECRET_KEY → un valor único y seguro
 
 DEBUG → False
 
-5. Haz deploy, se ejecutarán automaticamente las migraciones y se creará tu admin.
+4. Deploy automático
 
-Cada vez que hagas push a la rama principal en GitHub, Render reconstruirá y desplegará el backend automáticamente.
+Cada vez que hagas push a la rama principal en GitHub, Render:
 
-6. Si el deploy se realizó con éxito podras accder a la direccion que te asigna Render y te podrás conectar con el Frontend en Vercel.
+Instalará dependencias
+
+Ejecutará migraciones
+
+Reconstruirá y desplegará tu backend automáticamente
+
+6. Verificación
+
+Si todo fue correcto, Render te dará una URL pública donde tu backend estará disponible.
+Luego podrás conectar tu frontend en Vercel a esta dirección sin problema.
 
 ---
 
