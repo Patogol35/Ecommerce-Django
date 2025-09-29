@@ -63,11 +63,6 @@ Integración con frontend en React + Vite
 Configuración 
 
 
-Quedaría mucho más claro y ordenado así 👇
-
-
----
-
 Deploy en Render con Django + Supabase
 
 Para poner tu backend en producción con Render necesitas algunos archivos clave en la raíz del proyecto y la configuración correcta de variables de entorno.
@@ -134,6 +129,23 @@ Reconstruirá y desplegará tu backend automáticamente
 
 Si todo fue correcto, Render te dará una URL pública donde tu backend estará disponible.
 Luego podrás conectar tu frontend en Vercel a esta dirección sin problema.
+
+7. Cambios clave en settings.py
+
+- Seguridad con variables de entorno
+
+SECRET_KEY, DEBUG y ALLOWED_HOSTS ahora se leen desde variables de entorno en lugar de estar hardcodeados.
+
+- Base de datos en Supabase (PostgreSQL)
+
+Se reemplazó MySQL local por PostgreSQL usando dj-database-url y la variable DATABASE_URL.
+
+
+- Archivos estáticos para deploy
+
+Se añadió STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles") para que Django junte los archivos estáticos con collectstatic.
+
+
 
 ---
 
