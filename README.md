@@ -65,17 +65,17 @@ Configuración
 
 Deploy en Render con Django + Supabase
 
-Para poner tu backend en producción con Render necesitas algunos archivos clave en la raíz del proyecto y la configuración correcta de variables de entorno.
-
 1. Archivos necesarios en la raíz
 
-render.yaml → define el servicio, comandos de build y variables.
+Para poner tu backend en producción con Render necesitas algunos archivos clave en la raíz del proyecto y la configuración correcta de variables de entorno.
 
-build.sh → script que instala dependencias y ejecuta migraciones automáticamente antes de cada deploy.
+- render.yaml → define el servicio, comandos de build y variables.
 
-requirements.txt → actualizado con todas las dependencias de Django y librerías necesarias.
+- build.sh → script que instala dependencias y ejecuta migraciones automáticamente antes de cada deploy.
 
-Procfile (opcional en Render) → especifica cómo iniciar la app con Gunicorn.
+- requirements.txt → actualizado con todas las dependencias de Django y librerías necesarias.
+
+- Procfile (opcional en Render) → especifica cómo iniciar la app con Gunicorn.
 
 2. Base de datos en Supabase
 
@@ -132,19 +132,27 @@ Luego podrás conectar tu frontend en Vercel a esta dirección sin problema.
 
 7. Cambios clave en settings.py
 
-- Seguridad con variables de entorno
+- Uso de variables de entorno para SECRET_KEY, DEBUG y conexión a base de datos.
 
-SECRET_KEY, DEBUG y ALLOWED_HOSTS ahora se leen desde variables de entorno en lugar de estar hardcodeados.
+- ALLOWED_HOSTS configurado con dominios de Render (backend) y Vercel (frontend).
 
-- Base de datos en Supabase (PostgreSQL)
+- Base de datos gestionada con dj_database_url (ejemplo: Supabase) en lugar de MySQL local.
 
-Se reemplazó MySQL local por PostgreSQL usando dj-database-url y la variable DATABASE_URL.
+- Configuración de JWT con SIMPLE_JWT para control de duración de tokens.
 
+- Archivos estáticos servidos desde STATIC_ROOT (/staticfiles) y media desde MEDIA_ROOT.
 
-- Archivos estáticos para deploy
+- CORS restringido solo al dominio del frontend en Vercel.
 
-Se añadió STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles") para que Django junte los archivos estáticos con collectstatic.
+- Seguridad adicional activada:
 
+SECURE_SSL_REDIRECT
+
+SESSION_COOKIE_SECURE
+
+CSRF_COOKIE_SECURE
+
+SECURE_PROXY_SSL_HEADER
 
 
 ---
