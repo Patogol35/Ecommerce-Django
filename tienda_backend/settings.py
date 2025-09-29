@@ -13,7 +13,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =========================
 SECRET_KEY = os.environ.get("SECRET_KEY", "inseguro-dev")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
-ALLOWED_HOSTS = ["*"]
+
+ALLOWED_HOSTS = [
+    "ecommerce-django-nzwa.onrender.com",   # backend en Render
+    "ecommerce-jorge-patricio.vercel.app",  # frontend en Vercel
+    "localhost",                            # opcional para pruebas locales
+]
 
 # =========================
 # Aplicaciones
@@ -95,7 +100,6 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    # ❌ No hay paginación global aquí
 }
 
 SIMPLE_JWT = {
@@ -136,4 +140,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Config extra
 # =========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CORS_ALLOW_ALL_ORIGINS = True
+
+# =========================
+# CORS
+# =========================
+CORS_ALLOWED_ORIGINS = [
+    "https://ecommerce-jorge-patricio.vercel.app",  # frontend en Vercel
+]
+
+# =========================
+# Seguridad extra (HTTPS)
+# =========================
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
