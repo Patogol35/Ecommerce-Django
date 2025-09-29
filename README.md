@@ -52,16 +52,15 @@ Integración con frontend en React + Vite
 
 - Django REST Framework (DRF)
 
-- Django REST Framework SimpleJWT (autenticación con tokens JWT).
+- Django REST Framework SimpleJWT 
 
 - Supabase (PostgreSQL) 
 
-- django-cors-headers (para conexión con frontend).
+- django-cors-headers 
 
 ---
 
 Configuración 
-
 
 Deploy en Render con Django + Supabase
 
@@ -82,9 +81,13 @@ Para poner tu backend en producción con Render necesitas algunos archivos clave
 Este proyecto utiliza Supabase como base de datos.
 Render necesita la URL de conexión, que debes copiar en la variable de entorno DATABASE_URL.
 
-Formato de ejemplo:
+Formato de ejemplo: 
+
+```bash
 
 postgresql://postgres.sxnrtomwzoawegjkdzpl:[TU-PASSWORD]@aws-1-us-east-2.pooler.supabase.com:5432/postgres
+
+```
 
 Reemplaza [TU-PASSWORD] con tu contraseña real de Supabase.
 
@@ -99,11 +102,25 @@ Reemplaza [TU-PASSWORD] con tu contraseña real de Supabase.
 
 - Configura los comandos:
 
-Build Command:
+Build Command: 
+
+```bash
 
 ./build.sh
 
+```
+
 Start Command:
+
+Ejecuta Gunicorn apuntando al módulo WSGI de tu proyecto Django:
+
+```bash
+
+gunicorn <nombre_proyecto>.wsgi:application
+
+```
+
+En mi caso es de esta manera
 
 gunicorn tienda_backend.wsgi:application
 
@@ -127,10 +144,11 @@ Reconstruirá y desplegará tu backend automáticamente
 
 6. Verificación
 
+
 Si todo fue correcto, Render te dará una URL pública donde tu backend estará disponible.
 Luego podrás conectar tu frontend en Vercel a esta dirección sin problema.
 
-7. Cambios clave en settings.py
+7. Cambios clave en settings.py para producción 
 
 - Uso de variables de entorno para SECRET_KEY, DEBUG y conexión a base de datos.
 
