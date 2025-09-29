@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
 
-    # Tu app
+    # app
     'tienda',
 ]
 
