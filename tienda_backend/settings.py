@@ -6,7 +6,7 @@ import dj_database_url
 # =========================
 # Paths
 # =========================
-BASE_DIR = Path(__file__).resolve().parent.parent  # ✅ Corregido
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
 # Seguridad
@@ -14,8 +14,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent  # ✅ Corregido
 SECRET_KEY = os.environ.get("SECRET_KEY", "inseguro-dev")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-# 🔒 En producción, especifica tus dominios
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
+ALLOWED_HOSTS = [
+    "ecommerce-django-nzwa.onrender.com",   # backend en Render
+    "ecommerce-jorge-patricio.vercel.app",  # frontend en Vercel
+    "localhost",                            # opcional para pruebas locales
+]
 
 # =========================
 # Aplicaciones
@@ -29,12 +32,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Apps de terceros  
-    'rest_framework',  
-    'django_filters',  
-    'corsheaders',  
+    # Apps de terceros
+    'rest_framework',
+    'django_filters',
+    'corsheaders',
 
-    # Tu app  
+    # Tu app
     'tienda',
 ]
 
@@ -82,7 +85,7 @@ DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
         conn_max_age=600,
-        ssl_require=not DEBUG  # ✅ En local no requiere SSL
+        ssl_require=True
     )
 }
 
@@ -97,15 +100,12 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    # Puedes activar paginación global si quieres
-    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    # 'PAGE_SIZE': 10,
 }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=48),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': False,  # ✅ cámbialo a True si quieres más seguridad
+    'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
@@ -140,4 +140,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Config extra
 # =========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CORS_ALLOW_ALL_ORIGINS = True
+
+# =========================
+# CORS
+# =========================
+CORS_ALLOWED_ORIGINS = [
+    "https://ecommerce-jorge-patricio.vercel.app",  # frontend en Vercel
+]
+
+# =========================
+# Seguridad extra (HTTPS)
+# =========================
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
