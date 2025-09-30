@@ -43,22 +43,34 @@ class CategoriaViewSet(viewsets.ModelViewSet):
 def agregar_al_carrito(request):
     producto_id = request.data.get('producto_id')
     cantidad = int(request.data.get('cantidad', 1))
+
     try:
         producto = Producto.objects.get(id=producto_id)
     except Producto.DoesNotExist:
         return Response({'error': 'Producto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
+    # ✅ Validar stock disponible
+    if cantidad > producto.stock:
+        return Response({'error': f'Solo hay {producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
+
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
     item, creado = ItemCarrito.objects.get_or_create(
         carrito=carrito,
         producto=producto,
-        defaults={'cantidad': max(cantidad, 0)}
+        defaults={'cantidad': cantidad}
     )
+
     if not creado:
         nueva_cantidad = item.cantidad + cantidad
+
+        # ✅ Validar stock en actualización
+        if nueva_cantidad > producto.stock:
+            return Response({'error': f'Solo hay {producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
+
         if nueva_cantidad <= 0:
             item.delete()
             return Response({'message': 'Producto eliminado del carrito'}, status=status.HTTP_200_OK)
+
         item.cantidad = nueva_cantidad
         item.save()
 
@@ -98,6 +110,10 @@ def actualizar_cantidad_carrito(request, item_id):
         item = ItemCarrito.objects.get(id=item_id, carrito__usuario=request.user)
     except ItemCarrito.DoesNotExist:
         return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
+
+    # ✅ Validar stock
+    if cantidad > item.producto.stock:
+        return Response({'error': f'Solo hay {item.producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
 
     if cantidad <= 0:
         item.delete()
