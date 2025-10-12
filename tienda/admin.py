@@ -2,10 +2,6 @@ from django.contrib import admin
 from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
 from datetime import datetime, timedelta
 
-
-# ---------------------------
-# FILTROS PERSONALIZADOS
-# ---------------------------
 class StockBajoFilter(admin.SimpleListFilter):
     title = 'Stock'
     parameter_name = 'stock'
@@ -43,10 +39,6 @@ class FechaCreacionFilter(admin.SimpleListFilter):
             return queryset.filter(fecha_creacion__date__gte=semana_inicio)
         return queryset
 
-
-# ---------------------------
-# ADMIN
-# ---------------------------
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ("id", "nombre", "descripcion")
@@ -82,8 +74,6 @@ class PedidoAdmin(admin.ModelAdmin):
     search_fields = ['usuario__username']
     list_filter = ['fecha']
 
-
-# Registro
 admin.site.register(Producto, ProductoAdmin)
 admin.site.register(Carrito, CarritoAdmin)
 admin.site.register(Pedido, PedidoAdmin)
