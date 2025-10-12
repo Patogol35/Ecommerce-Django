@@ -17,27 +17,15 @@ from .serializers import (
 )
 from .filters import ProductoFilter
 
-
-# ---------------------------
-# CRUD PRODUCTOS
-# ---------------------------
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
     filterset_class = ProductoFilter
 
-
-# ---------------------------
-# CRUD CATEGORÍAS
-# ---------------------------
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
 
-
-# ---------------------------
-# AGREGAR PRODUCTO AL CARRITO
-# ---------------------------
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def agregar_al_carrito(request):
@@ -80,10 +68,6 @@ def agregar_al_carrito(request):
 
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_201_CREATED)
 
-
-# ---------------------------
-# ELIMINAR ITEM DEL CARRITO
-# ---------------------------
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def eliminar_del_carrito(request, item_id):
@@ -94,10 +78,6 @@ def eliminar_del_carrito(request, item_id):
     except ItemCarrito.DoesNotExist:
         return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
 
-
-# ---------------------------
-# ACTUALIZAR CANTIDAD
-# ---------------------------
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def actualizar_cantidad_carrito(request, item_id):
@@ -123,10 +103,6 @@ def actualizar_cantidad_carrito(request, item_id):
     item.save()
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_200_OK)
 
-
-# ---------------------------
-# VER CARRITO
-# ---------------------------
 class CarritoView(generics.RetrieveAPIView):
     serializer_class = CarritoSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -135,18 +111,10 @@ class CarritoView(generics.RetrieveAPIView):
         carrito, _ = Carrito.objects.get_or_create(usuario=self.request.user)
         return carrito
 
-
-# ---------------------------
-# REGISTRO USUARIOS
-# ---------------------------
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-
-# ---------------------------
-# CREAR PEDIDO
-# ---------------------------
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def crear_pedido(request):
@@ -179,10 +147,6 @@ def crear_pedido(request):
 
     return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
 
-
-# ---------------------------
-# LISTAR PEDIDOS DEL USUARIO
-# ---------------------------
 class PedidoPagination(PageNumberPagination):
     page_size = 10
 
@@ -195,10 +159,6 @@ class ListaPedidosUsuario(generics.ListAPIView):
     def get_queryset(self):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
 
-
-# ---------------------------
-# PERFIL USUARIO
-# ---------------------------
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
