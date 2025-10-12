@@ -49,7 +49,7 @@ def agregar_al_carrito(request):
     except Producto.DoesNotExist:
         return Response({'error': 'Producto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
-    # ✅ Validar stock disponible
+    # Validar stock disponible
     if cantidad > producto.stock:
         return Response({'error': f'Solo hay {producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -63,7 +63,7 @@ def agregar_al_carrito(request):
     if not creado:
         nueva_cantidad = item.cantidad + cantidad
 
-        # ✅ Validar stock en actualización
+        # Validar stock en actualización
         if nueva_cantidad > producto.stock:
             return Response({'error': f'Solo hay {producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -111,7 +111,7 @@ def actualizar_cantidad_carrito(request, item_id):
     except ItemCarrito.DoesNotExist:
         return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
 
-    # ✅ Validar stock
+    # Validar stock
     if cantidad > item.producto.stock:
         return Response({'error': f'Solo hay {item.producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
 
