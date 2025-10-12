@@ -16,5 +16,5 @@ python manage.py shell << END
 from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username="admin").exists():
-    User.objects.create_superuser("admin", "admin@example.com", "admin1234")
+    User.objects.create_superuser("Jorge", "patogol3535@gmail.com", "jorgepatricio26")
 END
