@@ -14,5 +14,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
-# ✅ Servir archivos multimedia SIEMPRE (Render no maneja media por defecto)
+# Servir archivos multimedia 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
