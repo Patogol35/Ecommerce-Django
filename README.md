@@ -142,13 +142,13 @@ Ejecutará migraciones
 
 Reconstruirá y desplegará tu backend automáticamente
 
-6. Verificación
+5. Verificación
 
 
 Si todo fue correcto, Render te dará una URL pública donde tu backend estará disponible.
 Luego podrás conectar tu frontend en Vercel a esta dirección sin problema.
 
-7. Cambios clave en settings.py para producción 
+6. Cambios clave en settings.py para producción 
 
 - Uso de variables de entorno para SECRET_KEY, DEBUG y conexión a base de datos.
 
