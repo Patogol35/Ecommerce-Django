@@ -1,0 +1,13 @@
+# Entorno virtual
+venv/
+env/
+# Archivos de entorno
+.env
+# Archivos de compilación
+__pycache__/
+*.pyc
+# Archivos de Django
+staticfiles/
+media/
+# Config de VSCode
+.vscode/

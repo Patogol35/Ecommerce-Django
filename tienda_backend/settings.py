@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+load_dotenv ()
 import dj_database_url
 
 # =========================
@@ -15,6 +17,8 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "inseguro-dev")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
+
+    "127.0.0.1",
     "ecommerce-django-nzwa.onrender.com",   # backend en Render
     "ecommerce-jorge-patricio.vercel.app",  # frontend en Vercel
     "localhost",                            # opcional para pruebas locales
