@@ -53,12 +53,16 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'password']
-    # Email único
+        extra_kwargs = {
+            'email': {'required': True, 'allow_blank': False}
+        }
     def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
+        email = value.strip().lower()
+        if User.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError("Este correo ya está registrado.")
-        return value
+        return email
     def create(self, validated_data):
+        validated_data['email'] = validated_data['email'].strip().lower()
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
