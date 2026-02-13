@@ -1,20 +1,23 @@
 #!/usr/bin/env bash
-# fail on errors
+# Fail on errors
 set -o errexit
 
-# Instala dependencias
+# =========================
+# Instalar dependencias
+# =========================
 pip install -r requirements.txt
 
-# Recoge archivos estáticos
+# =========================
+# Recoger archivos estáticos
+# =========================
 python manage.py collectstatic --noinput
 
-# Aplica migraciones
+# =========================
+# Aplicar migraciones
+# =========================
 python manage.py migrate
 
-# Crear superusuario automático si no existe
-python manage.py shell << END
-from django.contrib.auth import get_user_model
-User = get_user_model()
-if not User.objects.filter(username="admin").exists():
-    User.objects.create_superuser("Jorge", "patogol3535@gmail.com", "jorgepatricio26")
-END
+# =========================
+# Iniciar servidor con Gunicorn
+# =========================
+gunicorn tienda_backend.wsgi:application
