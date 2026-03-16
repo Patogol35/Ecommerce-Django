@@ -19,7 +19,7 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "ecommerce-django-3bpb.onrender.com",   # 👈 TU NUEVO BACKEND
+    "ecommerce-django-e44l.onrender.com",   # 👈  NUEVO BACKEND
     "ecommerce-jorge-patricio.vercel.app",
 ]
 
