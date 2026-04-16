@@ -8,3 +8,7 @@ gunicorn
 psycopg2-binary
 dj-database-url
 python-dotenv
+
+# GOOGLE LOGIN
+django-allauth==0.61.1
+dj-rest-auth==5.0.2
