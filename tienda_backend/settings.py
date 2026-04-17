@@ -38,11 +38,13 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
 
+    # 👇 ALLAUTH (Google)
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
+    # 👇 REST AUTH
     'dj_rest_auth',
     'dj_rest_auth.registration',
 
@@ -94,6 +96,13 @@ SOCIALACCOUNT_PROVIDERS = {
 # EMAIL (OBLIGATORIO)
 # =========================
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# =========================
+# DJ REST AUTH (🔥 FIX ERROR TOKEN)
+# =========================
+REST_AUTH = {
+    'TOKEN_MODEL': None
+}
 
 # =========================
 # URLS
