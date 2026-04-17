@@ -9,17 +9,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    # 👇 tus rutas principales
     path('', include('tienda.urls')),
-
-    # 👇 JWT (LO DEJAS TAL CUAL)
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
-    # 👇 NUEVO (necesario para Google Login)
-    path('dj-rest-auth/', include('dj_rest_auth.urls')),
 ]
 
-# 👇 multimedia (igual que ya tienes)
+# Servir archivos multimedia 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
