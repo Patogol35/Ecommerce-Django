@@ -2,16 +2,14 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
-load_dotenv ()
 import dj_database_url
 
-# =========================
-# Paths
-# =========================
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
-# Seguridad
+# SEGURIDAD
 # =========================
 SECRET_KEY = os.environ.get("SECRET_KEY", "inseguro-dev")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
@@ -19,15 +17,14 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "ecommerce-django-e44l.onrender.com",   # 👈  NUEVO BACKEND
+    "ecommerce-django-e44l.onrender.com",
     "ecommerce-jorge-patricio.vercel.app",
 ]
 
 # =========================
-# Aplicaciones
+# APPS
 # =========================
 INSTALLED_APPS = [
-    # Django apps base
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -35,17 +32,27 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Apps de terceros
+    'django.contrib.sites',
+
     'rest_framework',
     'django_filters',
     'corsheaders',
 
-    # app
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+
     'tienda',
 ]
 
+SITE_ID = 1
+
 # =========================
-# Middleware
+# MIDDLEWARE
 # =========================
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -59,21 +66,40 @@ MIDDLEWARE = [
 ]
 
 # =========================
-# URLs y WSGI
+# AUTH BACKENDS
+# =========================
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+# =========================
+# ALLAUTH CONFIG
+# =========================
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    }
+}
+
+# =========================
+# URLS
 # =========================
 ROOT_URLCONF = 'tienda_backend.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
+                'django.template.context_processors.request',  # 🔥 IMPORTANTE
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -82,7 +108,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tienda_backend.wsgi.application'
 
 # =========================
-# Base de datos (Supabase)
+# DATABASE
 # =========================
 DATABASES = {
     'default': dj_database_url.config(
@@ -93,68 +119,41 @@ DATABASES = {
 }
 
 # =========================
-# REST Framework + JWT
+# REST + JWT
 # =========================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.SearchFilter',
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ),
 }
 
+from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=48),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
 }
 
-# =========================
-# Validación de contraseñas
-# =========================
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
+REST_USE_JWT = True
 
 # =========================
-# Internacionalización
-# =========================
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
-
-# =========================
-# Archivos estáticos y media
+# STATIC
 # =========================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# =========================
-# Config extra
-# =========================
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # =========================
 # CORS
 # =========================
 CORS_ALLOWED_ORIGINS = [
-    "https://ecommerce-jorge-patricio.vercel.app",  # frontend en Vercel
+    "https://ecommerce-jorge-patricio.vercel.app",
 ]
 
 # =========================
-# Seguridad extra (HTTPS)
+# SECURITY
 # =========================
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
