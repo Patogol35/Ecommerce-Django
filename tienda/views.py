@@ -6,6 +6,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+
+# 👇 NUEVO (IMPORTANTE)
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+
 from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
 from .serializers import (
     ProductoSerializer,
@@ -17,14 +22,17 @@ from .serializers import (
 )
 from .filters import ProductoFilter
 
+
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
     filterset_class = ProductoFilter
 
+
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -37,7 +45,6 @@ def agregar_al_carrito(request):
     except Producto.DoesNotExist:
         return Response({'error': 'Producto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Validar stock disponible
     if cantidad > producto.stock:
         return Response({'error': f'Solo hay {producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -51,7 +58,6 @@ def agregar_al_carrito(request):
     if not creado:
         nueva_cantidad = item.cantidad + cantidad
 
-        # Validar stock en actualización
         if nueva_cantidad > producto.stock:
             return Response({'error': f'Solo hay {producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -68,6 +74,7 @@ def agregar_al_carrito(request):
 
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_201_CREATED)
 
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def eliminar_del_carrito(request, item_id):
@@ -77,6 +84,7 @@ def eliminar_del_carrito(request, item_id):
         return Response({'message': 'Producto eliminado del carrito'}, status=status.HTTP_200_OK)
     except ItemCarrito.DoesNotExist:
         return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -91,7 +99,6 @@ def actualizar_cantidad_carrito(request, item_id):
     except ItemCarrito.DoesNotExist:
         return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Validar stock
     if cantidad > item.producto.stock:
         return Response({'error': f'Solo hay {item.producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -103,6 +110,7 @@ def actualizar_cantidad_carrito(request, item_id):
     item.save()
     return Response(ItemCarritoSerializer(item).data, status=status.HTTP_200_OK)
 
+
 class CarritoView(generics.RetrieveAPIView):
     serializer_class = CarritoSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -111,9 +119,11 @@ class CarritoView(generics.RetrieveAPIView):
         carrito, _ = Carrito.objects.get_or_create(usuario=self.request.user)
         return carrito
 
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -147,6 +157,7 @@ def crear_pedido(request):
 
     return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
 
+
 class PedidoPagination(PageNumberPagination):
     page_size = 10
 
@@ -159,6 +170,7 @@ class ListaPedidosUsuario(generics.ListAPIView):
     def get_queryset(self):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
@@ -168,3 +180,10 @@ def user_profile(request):
         "username": user.username,
         "email": user.email,
     })
+
+
+# =========================
+# 🔥 GOOGLE LOGIN
+# =========================
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
