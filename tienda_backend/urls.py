@@ -1,18 +1,19 @@
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # TU APP
     path('', include('tienda.urls')),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # AUTH BASE
+    path('api/auth/', include('dj_rest_auth.urls')),
+
+    # REGISTRO + SOCIAL LOGIN
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 ]
 
-# Servir archivos multimedia 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
