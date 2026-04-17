@@ -11,7 +11,6 @@ from rest_framework.pagination import PageNumberPagination
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
-# 🔥 Google
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -27,9 +26,6 @@ from .serializers import (
 from .filters import ProductoFilter
 
 
-# =========================
-# PRODUCTOS
-# =========================
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
@@ -41,9 +37,6 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
 
 
-# =========================
-# CARRITO
-# =========================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def agregar_al_carrito(request):
@@ -53,10 +46,10 @@ def agregar_al_carrito(request):
     try:
         producto = Producto.objects.get(id=producto_id)
     except Producto.DoesNotExist:
-        return Response({'error': 'Producto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Producto no encontrado'}, status=404)
 
     if cantidad > producto.stock:
-        return Response({'error': f'Solo hay {producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': f'Solo hay {producto.stock} disponibles'}, status=400)
 
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
 
@@ -68,22 +61,17 @@ def agregar_al_carrito(request):
 
     if not creado:
         nueva_cantidad = item.cantidad + cantidad
-
         if nueva_cantidad > producto.stock:
-            return Response({'error': f'Solo hay {producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Stock insuficiente'}, status=400)
 
         if nueva_cantidad <= 0:
             item.delete()
-            return Response({'message': 'Producto eliminado del carrito'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Eliminado'}, status=200)
 
         item.cantidad = nueva_cantidad
         item.save()
 
-    if creado and item.cantidad <= 0:
-        item.delete()
-        return Response({'message': 'Producto eliminado del carrito'}, status=status.HTTP_200_OK)
-
-    return Response(ItemCarritoSerializer(item).data, status=status.HTTP_201_CREATED)
+    return Response(ItemCarritoSerializer(item).data, status=201)
 
 
 @api_view(['DELETE'])
@@ -92,9 +80,9 @@ def eliminar_del_carrito(request, item_id):
     try:
         item = ItemCarrito.objects.get(id=item_id, carrito__usuario=request.user)
         item.delete()
-        return Response({'message': 'Producto eliminado del carrito'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Eliminado'}, status=200)
     except ItemCarrito.DoesNotExist:
-        return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'No encontrado'}, status=404)
 
 
 @api_view(['PUT'])
@@ -102,24 +90,17 @@ def eliminar_del_carrito(request, item_id):
 def actualizar_cantidad_carrito(request, item_id):
     try:
         cantidad = int(request.data.get('cantidad', 1))
-    except (TypeError, ValueError):
-        return Response({'error': 'Cantidad inválida'}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
         item = ItemCarrito.objects.get(id=item_id, carrito__usuario=request.user)
-    except ItemCarrito.DoesNotExist:
-        return Response({'error': 'Producto no encontrado en el carrito'}, status=status.HTTP_404_NOT_FOUND)
-
-    if cantidad > item.producto.stock:
-        return Response({'error': f'Solo hay {item.producto.stock} unidades disponibles'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'error': 'Error'}, status=400)
 
     if cantidad <= 0:
         item.delete()
-        return Response({'message': 'Producto eliminado del carrito'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Eliminado'}, status=200)
 
     item.cantidad = cantidad
     item.save()
-    return Response(ItemCarritoSerializer(item).data, status=status.HTTP_200_OK)
+    return Response(ItemCarritoSerializer(item).data)
 
 
 class CarritoView(generics.RetrieveAPIView):
@@ -131,9 +112,6 @@ class CarritoView(generics.RetrieveAPIView):
         return carrito
 
 
-# =========================
-# AUTH
-# =========================
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -142,76 +120,54 @@ class RegisterView(generics.CreateAPIView):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
-    user = request.user
     return Response({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
+        "id": request.user.id,
+        "username": request.user.username,
+        "email": request.user.email,
     })
 
 
-# =========================
-# PEDIDOS
-# =========================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def crear_pedido(request):
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
-    items = list(carrito.items.select_related('producto'))
+    items = list(carrito.items.all())
 
     if not items:
-        return Response({'error': 'El carrito está vacío'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Carrito vacío'}, status=400)
 
-    for it in items:
-        if it.producto.stock < it.cantidad:
-            return Response({'error': f'Stock insuficiente para {it.producto.nombre}'}, status=status.HTTP_400_BAD_REQUEST)
+    total = sum(Decimal(i.producto.precio) * i.cantidad for i in items)
 
-    with transaction.atomic():
-        total = sum((Decimal(it.producto.precio) * it.cantidad for it in items), Decimal('0'))
-        pedido = Pedido.objects.create(usuario=request.user, total=total)
+    pedido = Pedido.objects.create(usuario=request.user, total=total)
 
-        for it in items:
-            prod = it.producto
-            prod.stock -= it.cantidad
-            prod.save()
+    for i in items:
+        ItemPedido.objects.create(
+            pedido=pedido,
+            producto=i.producto,
+            cantidad=i.cantidad,
+            precio_unitario=i.producto.precio
+        )
 
-            ItemPedido.objects.create(
-                pedido=pedido,
-                producto=prod,
-                cantidad=it.cantidad,
-                precio_unitario=prod.precio
-            )
+    carrito.items.all().delete()
 
-        carrito.items.all().delete()
-
-    return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
-
-
-class PedidoPagination(PageNumberPagination):
-    page_size = 10
+    return Response(PedidoSerializer(pedido).data)
 
 
 class ListaPedidosUsuario(generics.ListAPIView):
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated]
-    pagination_class = PedidoPagination
 
     def get_queryset(self):
-        return Pedido.objects.filter(usuario=self.request.user).order_by('-fecha')
+        return Pedido.objects.filter(usuario=self.request.user)
 
 
-# =========================
-# 🔥 GOOGLE LOGIN PRO
-# =========================
+# 🔥 GOOGLE LOGIN
 @api_view(['POST'])
 def google_login(request):
     token = request.data.get('token')
 
     if not token:
-        return Response({'error': 'Token no enviado'}, status=400)
-
-    if not settings.GOOGLE_CLIENT_ID:
-        return Response({'error': 'Google no configurado'}, status=500)
+        return Response({'error': 'Token requerido'}, status=400)
 
     try:
         idinfo = id_token.verify_oauth2_token(
@@ -220,17 +176,12 @@ def google_login(request):
             settings.GOOGLE_CLIENT_ID
         )
 
-        # 🔐 Seguridad extra
         if idinfo['aud'] != settings.GOOGLE_CLIENT_ID:
             return Response({'error': 'Token inválido'}, status=400)
 
         email = idinfo.get('email')
         name = idinfo.get('name')
 
-        if not email:
-            return Response({'error': 'Email no disponible'}, status=400)
-
-        # 👤 Buscar o crear usuario
         user = User.objects.filter(email=email).first()
 
         if not user:
@@ -240,7 +191,6 @@ def google_login(request):
                 first_name=name or ''
             )
 
-        # 🔑 Generar JWT
         refresh = RefreshToken.for_user(user)
 
         return Response({
@@ -248,5 +198,5 @@ def google_login(request):
             'refresh': str(refresh),
         })
 
-    except ValueError:
+    except Exception:
         return Response({'error': 'Token inválido'}, status=400)
