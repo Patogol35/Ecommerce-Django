@@ -38,13 +38,13 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
 
-    # 👇 ALLAUTH (Google)
+    # 🔥 ALLAUTH (Google)
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
-    # 👇 REST AUTH
+    # 🔥 REST AUTH
     'dj_rest_auth',
     'dj_rest_auth.registration',
 
@@ -54,13 +54,18 @@ INSTALLED_APPS = [
 SITE_ID = 1
 
 # =========================
-# MIDDLEWARE
+# MIDDLEWARE (🔥 CORREGIDO)
 # =========================
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # 🔥 STATIC FIX
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    # 🔥 ESTA LÍNEA ERA LA QUE FALTABA
+    'allauth.account.middleware.AccountMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -98,7 +103,7 @@ SOCIALACCOUNT_PROVIDERS = {
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # =========================
-# DJ REST AUTH (🔥 FIX ERROR TOKEN)
+# DJ REST AUTH (🔥 FIX TOKEN)
 # =========================
 REST_AUTH = {
     'TOKEN_MODEL': None
