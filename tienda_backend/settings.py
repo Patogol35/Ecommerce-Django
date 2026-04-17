@@ -28,14 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # 👇 NUEVO
     'django.contrib.sites',
 
     'rest_framework',
     'django_filters',
     'corsheaders',
 
-    # 👇 Google Auth
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -46,9 +44,6 @@ INSTALLED_APPS = [
     'tienda',
 ]
 
-# =========================
-# AUTH BACKENDS
-# =========================
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = (
@@ -56,10 +51,8 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-# =========================
-# GOOGLE CONFIG
-# =========================
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+# 🔥 SIN ENV (FIJO)
+GOOGLE_CLIENT_ID = "6793546722-48rr78ea6tsderktj36dvihijcofjm8f.apps.googleusercontent.com"
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -68,9 +61,11 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# =========================
-# MIDDLEWARE
-# =========================
+# 🔥 FIX ERROR dj-rest-auth
+REST_AUTH = {
+    'TOKEN_MODEL': None
+}
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -92,7 +87,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',  # 🔥 IMPORTANTE
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -102,9 +97,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'tienda_backend.wsgi.application'
 
-# =========================
-# DB
-# =========================
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
@@ -113,9 +105,6 @@ DATABASES = {
     )
 }
 
-# =========================
-# JWT
-# =========================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -133,9 +122,6 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
-# =========================
-# PASSWORDS
-# =========================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -143,17 +129,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# =========================
-# I18N
-# =========================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# =========================
-# STATIC
-# =========================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -162,16 +142,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# =========================
-# CORS
-# =========================
 CORS_ALLOWED_ORIGINS = [
     "https://ecommerce-jorge-patricio.vercel.app",
 ]
 
-# =========================
-# SECURITY
-# =========================
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
