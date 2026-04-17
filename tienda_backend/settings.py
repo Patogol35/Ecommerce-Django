@@ -6,6 +6,9 @@ import dj_database_url
 
 load_dotenv()
 
+# =========================
+# PATHS
+# =========================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
@@ -34,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
 
-    # Third party
+    # Third-party
     'rest_framework',
     'django_filters',
     'corsheaders',
@@ -72,6 +75,9 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+# =========================
+# GOOGLE PROVIDER
+# =========================
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
@@ -113,7 +119,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',  # 👈 IMPORTANTE
+                'django.template.context_processors.request',  # IMPORTANTE
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -124,7 +130,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tienda_backend.wsgi.application'
 
 # =========================
-# DB
+# BASE DE DATOS
 # =========================
 DATABASES = {
     'default': dj_database_url.config(
@@ -135,17 +141,34 @@ DATABASES = {
 }
 
 # =========================
-# REST + JWT
+# REST FRAMEWORK
 # =========================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.SearchFilter',
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
+# =========================
+# JWT
+# =========================
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=48),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+# =========================
+# DJ-REST-AUTH (🔥 FIX ERROR)
+# =========================
+REST_AUTH = {
+    'USE_JWT': True,
+    'TOKEN_MODEL': None,
 }
 
 # =========================
@@ -157,13 +180,23 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # =========================
-# STATIC
+# INTERNACIONALIZACIÓN
+# =========================
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+# =========================
+# STATIC & MEDIA
 # =========================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -175,7 +208,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # =========================
-# HTTPS
+# HTTPS / SEGURIDAD
 # =========================
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = not DEBUG
