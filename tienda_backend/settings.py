@@ -38,13 +38,11 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
 
-    # Google login
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
-    # Auth REST
     'dj_rest_auth',
     'dj_rest_auth.registration',
 
@@ -63,7 +61,6 @@ MIDDLEWARE = [
 
     'django.contrib.sessions.middleware.SessionMiddleware',
 
-    # 🔥 necesario para allauth
     'allauth.account.middleware.AccountMiddleware',
 
     'django.middleware.common.CommonMiddleware',
@@ -103,7 +100,7 @@ SOCIALACCOUNT_PROVIDERS = {
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # =========================
-# DJ REST AUTH (FIX TOKEN)
+# DJ REST AUTH
 # =========================
 REST_AUTH = {
     'TOKEN_MODEL': None
@@ -122,7 +119,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',  # 🔥 FIX FINAL
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
