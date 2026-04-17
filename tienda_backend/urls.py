@@ -9,10 +9,11 @@ urlpatterns = [
     # TU APP
     path('', include('tienda.urls')),
 
-    # AUTH BASE
-    path('api/auth/', include('dj_rest_auth.urls')),
+    # 🔥 ALLAUTH (OBLIGATORIO PARA GOOGLE)
+    path('accounts/', include('allauth.urls')),
 
-    # REGISTRO + SOCIAL LOGIN
+    # AUTH API
+    path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 ]
 
