@@ -15,7 +15,7 @@ class Producto(models.Model):
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField()
-    imagen = models.URLField(max_length=500)
+    imagen = models.URLField(max_length=500)  # imagen principal
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     categoria = models.ForeignKey(
@@ -31,8 +31,15 @@ class Producto(models.Model):
 
 
 class ProductoImagen(models.Model):
-    producto = models.ForeignKey(Producto, related_name='imagenes', on_delete=models.CASCADE)
+    producto = models.ForeignKey(
+        Producto,
+        related_name='imagenes',
+        on_delete=models.CASCADE
+    )
     imagen = models.URLField(max_length=500)
+
+    def __str__(self):
+        return f"Imagen de {self.producto.nombre}"
 
 
 class Carrito(models.Model):
