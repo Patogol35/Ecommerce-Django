@@ -26,9 +26,6 @@ from .serializers import (
 from .filters import ProductoFilter
 
 
-# =========================
-# PRODUCTOS
-# =========================
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
@@ -40,9 +37,6 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
 
 
-# =========================
-# CARRITO
-# =========================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def agregar_al_carrito(request):
@@ -67,7 +61,6 @@ def agregar_al_carrito(request):
 
     if not creado:
         nueva_cantidad = item.cantidad + cantidad
-
         if nueva_cantidad > producto.stock:
             return Response({'error': 'Stock insuficiente'}, status=400)
 
@@ -119,9 +112,6 @@ class CarritoView(generics.RetrieveAPIView):
         return carrito
 
 
-# =========================
-# AUTH
-# =========================
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -137,9 +127,6 @@ def user_profile(request):
     })
 
 
-# =========================
-# PEDIDOS
-# =========================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def crear_pedido(request):
@@ -171,12 +158,10 @@ class ListaPedidosUsuario(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Pedido.objects.filter(usuario=self.request.user).order_by('-id')
+        return Pedido.objects.filter(usuario=self.request.user)
 
 
-# =========================
-# 🔥 GOOGLE LOGIN (FIX PRO)
-# =========================
+# 🔥 GOOGLE LOGIN
 @api_view(['POST'])
 def google_login(request):
     token = request.data.get('token')
@@ -197,10 +182,6 @@ def google_login(request):
         email = idinfo.get('email')
         name = idinfo.get('name')
 
-        if not email:
-            return Response({'error': 'Email no disponible'}, status=400)
-
-        # 🔥 CLAVE: BUSCAR SIEMPRE POR EMAIL
         user = User.objects.filter(email=email).first()
 
         if not user:
@@ -217,5 +198,5 @@ def google_login(request):
             'refresh': str(refresh),
         })
 
-    except Exception as e:
+    except Exception:
         return Response({'error': 'Token inválido'}, status=400)
