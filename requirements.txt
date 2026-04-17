@@ -9,6 +9,9 @@ psycopg2-binary
 dj-database-url
 python-dotenv
 
-# GOOGLE LOGIN
+# Google Login
 django-allauth==0.61.1
 dj-rest-auth==5.0.2
+
+# Static en producción
+whitenoise
