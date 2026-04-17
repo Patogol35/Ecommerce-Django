@@ -56,6 +56,7 @@ SITE_ID = 1
 # =========================
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 🔥 STATIC FIX
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -79,6 +80,8 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+LOGIN_REDIRECT_URL = '/'
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -86,6 +89,11 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {'access_type': 'online'},
     }
 }
+
+# =========================
+# EMAIL (OBLIGATORIO)
+# =========================
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # =========================
 # URLS
@@ -98,7 +106,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',  # 🔥 IMPORTANTE
+                'django.template.context_processors.request',  # 🔥 CLAVE
                 'django.contrib.auth.context_processors.auth',
             ],
         },
@@ -127,7 +135,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=48),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
