@@ -38,13 +38,13 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
 
-    # 🔥 ALLAUTH (Google)
+    # Google login
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
-    # 🔥 REST AUTH
+    # Auth REST
     'dj_rest_auth',
     'dj_rest_auth.registration',
 
@@ -54,7 +54,7 @@ INSTALLED_APPS = [
 SITE_ID = 1
 
 # =========================
-# MIDDLEWARE (🔥 CORREGIDO)
+# MIDDLEWARE
 # =========================
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -63,7 +63,7 @@ MIDDLEWARE = [
 
     'django.contrib.sessions.middleware.SessionMiddleware',
 
-    # 🔥 ESTA LÍNEA ERA LA QUE FALTABA
+    # 🔥 necesario para allauth
     'allauth.account.middleware.AccountMiddleware',
 
     'django.middleware.common.CommonMiddleware',
@@ -98,12 +98,12 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 # =========================
-# EMAIL (OBLIGATORIO)
+# EMAIL
 # =========================
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # =========================
-# DJ REST AUTH (🔥 FIX TOKEN)
+# DJ REST AUTH (FIX TOKEN)
 # =========================
 REST_AUTH = {
     'TOKEN_MODEL': None
@@ -120,8 +120,9 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',  # 🔥 CLAVE
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',  # 🔥 FIX FINAL
             ],
         },
     },
