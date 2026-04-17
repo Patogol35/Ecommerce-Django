@@ -131,7 +131,7 @@ def user_profile(request):
     })
 
 
-# 🔥 CREAR PEDIDO (ARREGLADO)
+# CREAR PEDIDO 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def crear_pedido(request):
@@ -180,7 +180,7 @@ class ListaPedidosUsuario(generics.ListAPIView):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-id')
 
 
-# 🔥 GOOGLE LOGIN (ARREGLADO)
+# GOOGLE LOGIN 
 @api_view(['POST'])
 def google_login(request):
     token = request.data.get('token')
@@ -201,7 +201,7 @@ def google_login(request):
         email = idinfo.get('email')
         name = idinfo.get('name')
 
-        # 🔥 EVITA USUARIOS DUPLICADOS
+        # EVITA USUARIOS DUPLICADOS
         user, created = User.objects.get_or_create(
             email=email,
             defaults={
