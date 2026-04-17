@@ -30,6 +30,11 @@ class Producto(models.Model):
         return self.nombre
 
 
+class ProductoImagen(models.Model):
+    producto = models.ForeignKey(Producto, related_name='imagenes', on_delete=models.CASCADE)
+    imagen = models.URLField(max_length=500)
+
+
 class Carrito(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     creado = models.DateTimeField(auto_now_add=True)
