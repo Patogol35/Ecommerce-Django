@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
+from .models import Producto, ProductoImagen, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
 from datetime import datetime, timedelta
 
 class StockBajoFilter(admin.SimpleListFilter):
@@ -39,6 +39,12 @@ class FechaCreacionFilter(admin.SimpleListFilter):
             return queryset.filter(fecha_creacion__date__gte=semana_inicio)
         return queryset
 
+
+class ProductoImagenInline(admin.TabularInline):
+    model = ProductoImagen
+    extra = 1
+    
+
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ("id", "nombre", "descripcion")
@@ -49,6 +55,7 @@ class ProductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'precio', 'stock', 'fecha_creacion', 'categoria')
     search_fields = ['nombre']
     list_filter = ['fecha_creacion', 'categoria', StockBajoFilter, FechaCreacionFilter]
+    inlines = [ProductoImagenInline]  
 
 
 class ItemCarritoInline(admin.TabularInline):
