@@ -2,32 +2,25 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
-load_dotenv ()
+load_dotenv()
 import dj_database_url
 
-# =========================
-# Paths
-# =========================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# =========================
-# Seguridad
-# =========================
 SECRET_KEY = os.environ.get("SECRET_KEY", "inseguro-dev")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "ecommerce-django-e44l.onrender.com",   # 👈  NUEVO BACKEND
+    "ecommerce-django-e44l.onrender.com",
     "ecommerce-jorge-patricio.vercel.app",
 ]
 
 # =========================
-# Aplicaciones
+# APPS
 # =========================
 INSTALLED_APPS = [
-    # Django apps base
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -35,17 +28,48 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Apps de terceros
+    # 👇 NUEVO
+    'django.contrib.sites',
+
     'rest_framework',
     'django_filters',
     'corsheaders',
 
-    # app
+    # 👇 Google Auth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
+    'dj_rest_auth',
+
     'tienda',
 ]
 
 # =========================
-# Middleware
+# AUTH BACKENDS
+# =========================
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+# =========================
+# GOOGLE CONFIG
+# =========================
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    }
+}
+
+# =========================
+# MIDDLEWARE
 # =========================
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -58,9 +82,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# =========================
-# URLs y WSGI
-# =========================
 ROOT_URLCONF = 'tienda_backend.urls'
 
 TEMPLATES = [
@@ -71,7 +92,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',
+                'django.template.context_processors.request',  # 🔥 IMPORTANTE
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -82,7 +103,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tienda_backend.wsgi.application'
 
 # =========================
-# Base de datos (Supabase)
+# DB
 # =========================
 DATABASES = {
     'default': dj_database_url.config(
@@ -93,7 +114,7 @@ DATABASES = {
 }
 
 # =========================
-# REST Framework + JWT
+# JWT
 # =========================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -113,7 +134,7 @@ SIMPLE_JWT = {
 }
 
 # =========================
-# Validación de contraseñas
+# PASSWORDS
 # =========================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -123,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # =========================
-# Internacionalización
+# I18N
 # =========================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -131,7 +152,7 @@ USE_I18N = True
 USE_TZ = True
 
 # =========================
-# Archivos estáticos y media
+# STATIC
 # =========================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -139,20 +160,17 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# =========================
-# Config extra
-# =========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # =========================
 # CORS
 # =========================
 CORS_ALLOWED_ORIGINS = [
-    "https://ecommerce-jorge-patricio.vercel.app",  # frontend en Vercel
+    "https://ecommerce-jorge-patricio.vercel.app",
 ]
 
 # =========================
-# Seguridad extra (HTTPS)
+# SECURITY
 # =========================
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = not DEBUG
