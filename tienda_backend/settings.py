@@ -2,17 +2,16 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+load_dotenv ()
 import dj_database_url
 
-load_dotenv()
-
 # =========================
-# PATHS
+# Paths
 # =========================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
-# SEGURIDAD
+# Seguridad
 # =========================
 SECRET_KEY = os.environ.get("SECRET_KEY", "inseguro-dev")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
@@ -20,15 +19,15 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "ecommerce-django-e44l.onrender.com",
+    "ecommerce-django-e44l.onrender.com",   # 👈  NUEVO BACKEND
     "ecommerce-jorge-patricio.vercel.app",
 ]
 
 # =========================
-# APPS
+# Aplicaciones
 # =========================
 INSTALLED_APPS = [
-    # Django
+    # Django apps base
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,34 +35,31 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Third-party
+    # Apps de terceros
     'rest_framework',
     'django_filters',
     'corsheaders',
 
-    # App
+    # app
     'tienda',
 ]
 
 # =========================
-# MIDDLEWARE
+# Middleware
 # =========================
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 # =========================
-# URLS
+# URLs y WSGI
 # =========================
 ROOT_URLCONF = 'tienda_backend.urls'
 
@@ -86,7 +82,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tienda_backend.wsgi.application'
 
 # =========================
-# BASE DE DATOS
+# Base de datos (Supabase)
 # =========================
 DATABASES = {
     'default': dj_database_url.config(
@@ -97,7 +93,7 @@ DATABASES = {
 }
 
 # =========================
-# REST FRAMEWORK
+# REST Framework + JWT
 # =========================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -109,9 +105,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-# =========================
-# JWT
-# =========================
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=48),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -120,15 +113,17 @@ SIMPLE_JWT = {
 }
 
 # =========================
-# PASSWORDS
+# Validación de contraseñas
 # =========================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # =========================
-# INTERNACIONALIZACIÓN
+# Internacionalización
 # =========================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -136,7 +131,7 @@ USE_I18N = True
 USE_TZ = True
 
 # =========================
-# STATIC & MEDIA
+# Archivos estáticos y media
 # =========================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -144,19 +139,20 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+# =========================
+# Config extra
+# =========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # =========================
 # CORS
 # =========================
 CORS_ALLOWED_ORIGINS = [
-    "https://ecommerce-jorge-patricio.vercel.app",
+    "https://ecommerce-jorge-patricio.vercel.app",  # frontend en Vercel
 ]
 
 # =========================
-# HTTPS / SEGURIDAD
+# Seguridad extra (HTTPS)
 # =========================
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = not DEBUG
