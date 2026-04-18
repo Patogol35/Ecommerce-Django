@@ -1,20 +1,6 @@
 from django.contrib import admin
-from .models import (
-    Producto,
-    ProductoImagen,
-    Categoria,
-    Carrito,
-    ItemCarrito,
-    Pedido,
-    ItemPedido,
-    VarianteProducto
-)
+from .models import Producto, ProductoImagen, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
 from datetime import datetime, timedelta
-
-
-# =========================
-# 🔴 FILTROS
-# =========================
 
 class StockBajoFilter(admin.SimpleListFilter):
     title = 'Stock'
@@ -54,27 +40,10 @@ class FechaCreacionFilter(admin.SimpleListFilter):
         return queryset
 
 
-# =========================
-# 🖼️ INLINE IMÁGENES
-# =========================
-
 class ProductoImagenInline(admin.TabularInline):
     model = ProductoImagen
     extra = 1
-
-
-# =========================
-# 🔥 INLINE VARIANTES
-# =========================
-
-class VarianteProductoInline(admin.TabularInline):
-    model = VarianteProducto
-    extra = 1
-
-
-# =========================
-# 📂 CATEGORÍA
-# =========================
+    
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
@@ -82,33 +51,12 @@ class CategoriaAdmin(admin.ModelAdmin):
     search_fields = ["nombre"]
 
 
-# =========================
-# 📦 PRODUCTO
-# =========================
-
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'precio', 'stock', 'fecha_creacion', 'categoria')
     search_fields = ['nombre']
-    list_filter = ['fecha_creacion', 'categoria', FechaCreacionFilter]
+    list_filter = ['fecha_creacion', 'categoria', StockBajoFilter, FechaCreacionFilter]
+    inlines = [ProductoImagenInline]  
 
-    # 🔥 AQUÍ AGREGAMOS VARIANTES
-    inlines = [VarianteProductoInline, ProductoImagenInline]
-
-
-# =========================
-# 🔥 VARIANTES (ADMIN DIRECTO)
-# =========================
-
-@admin.register(VarianteProducto)
-class VarianteProductoAdmin(admin.ModelAdmin):
-    list_display = ('producto', 'nombre', 'color', 'talla', 'precio', 'stock')
-    list_filter = ('producto', 'color', 'talla', StockBajoFilter)
-    search_fields = ('nombre', 'producto__nombre')
-
-
-# =========================
-# 🛒 CARRITO
-# =========================
 
 class ItemCarritoInline(admin.TabularInline):
     model = ItemCarrito
@@ -122,25 +70,16 @@ class CarritoAdmin(admin.ModelAdmin):
     list_filter = ['creado']
 
 
-# =========================
-# 📦 PEDIDOS
-# =========================
-
 class ItemPedidoInline(admin.TabularInline):
     model = ItemPedido
     extra = 0
 
 
 class PedidoAdmin(admin.ModelAdmin):
-    list_display = ('usuario', 'fecha', 'total')
+    list_display = ('usuario', 'fecha')
     inlines = [ItemPedidoInline]
     search_fields = ['usuario__username']
     list_filter = ['fecha']
-
-
-# =========================
-# 📌 REGISTROS
-# =========================
 
 admin.site.register(Producto, ProductoAdmin)
 admin.site.register(Carrito, CarritoAdmin)
