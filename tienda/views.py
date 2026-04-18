@@ -30,7 +30,7 @@ from .filters import ProductoFilter
 # PRODUCTOS
 # =========================
 class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.all()
+    queryset = Producto.objects.all().prefetch_related('variantes', 'imagenes').distinct()
     serializer_class = ProductoSerializer
     filterset_class = ProductoFilter
 
@@ -47,7 +47,16 @@ class CategoriaViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 def agregar_al_carrito(request):
     variante_id = request.data.get('variante_id')
-    cantidad = int(request.data.get('cantidad', 1))
+
+    # 🔥 VALIDACIÓN CLAVE
+    if not variante_id:
+        return Response({'error': 'variante_id requerido'}, status=400)
+
+    # 🔥 PROTECCIÓN CONTRA VALORES ROTOS
+    try:
+        cantidad = int(request.data.get('cantidad', 1))
+    except:
+        return Response({'error': 'Cantidad inválida'}, status=400)
 
     try:
         variante = Variante.objects.get(id=variante_id)
@@ -97,9 +106,13 @@ def eliminar_del_carrito(request, item_id):
 def actualizar_cantidad_carrito(request, item_id):
     try:
         cantidad = int(request.data.get('cantidad', 1))
-        item = ItemCarrito.objects.get(id=item_id, carrito__usuario=request.user)
     except:
-        return Response({'error': 'Error'}, status=400)
+        return Response({'error': 'Cantidad inválida'}, status=400)
+
+    try:
+        item = ItemCarrito.objects.get(id=item_id, carrito__usuario=request.user)
+    except ItemCarrito.DoesNotExist:
+        return Response({'error': 'Item no encontrado'}, status=404)
 
     if cantidad <= 0:
         item.delete()
