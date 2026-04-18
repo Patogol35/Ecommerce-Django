@@ -41,7 +41,7 @@ class VarianteProducto(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField()
 
-    sku = models.CharField(max_length=100, unique=True)
+    sku = models.CharField(max_length=100, unique=True, null=True, blank=True)
 
     def __str__(self):
         return f"{self.producto.nombre} - {self.talla or ''} - {self.color or ''}"
