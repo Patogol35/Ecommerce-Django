@@ -5,11 +5,10 @@ pip install -r requirements.txt
 
 python manage.py collectstatic --noinput
 
-# 🔥 AGREGA ESTO TEMPORALMENTE
-python manage.py makemigrations
-
+# ⚠️ QUITA makemigrations en producción
 python manage.py migrate --noinput
 
+# Crear superusuario automático
 python manage.py shell << END
 from django.contrib.auth import get_user_model
 User = get_user_model()
