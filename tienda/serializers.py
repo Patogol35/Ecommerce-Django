@@ -1,13 +1,8 @@
 from rest_framework import serializers
 from .models import (
-    Producto,
-    Categoria,
-    ProductoImagen,
-    Carrito,
-    ItemCarrito,
-    Pedido,
-    ItemPedido,
-    Variante
+    Producto, Categoria, ProductoImagen,
+    Carrito, ItemCarrito, Pedido, ItemPedido,
+    VarianteProducto
 )
 from django.contrib.auth.models import User
 
@@ -31,12 +26,12 @@ class ProductoImagenSerializer(serializers.ModelSerializer):
 
 
 # ------------------------------------------------------------
-# VARIANTE (NUEVO)
+# VARIANTE PRODUCTO 🔥
 # ------------------------------------------------------------
-class VarianteSerializer(serializers.ModelSerializer):
+class VarianteProductoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Variante
-        fields = "__all__"
+        model = VarianteProducto
+        fields = ['id', 'talla', 'color', 'precio', 'stock', 'sku']
 
 
 # ------------------------------------------------------------
@@ -52,7 +47,9 @@ class ProductoSerializer(serializers.ModelSerializer):
     )
 
     imagenes = ProductoImagenSerializer(many=True, read_only=True)
-    variantes = VarianteSerializer(many=True, read_only=True)
+
+    # 🔥 VARIANTES
+    variantes = VarianteProductoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Producto
@@ -60,15 +57,22 @@ class ProductoSerializer(serializers.ModelSerializer):
 
 
 # ------------------------------------------------------------
-# ITEM CARRITO
+# ITEM CARRITO 🔥
 # ------------------------------------------------------------
 class ItemCarritoSerializer(serializers.ModelSerializer):
-    variante = VarianteSerializer(read_only=True)
+    variante = VarianteProductoSerializer(read_only=True)
+
+    variante_id = serializers.PrimaryKeyRelatedField(
+        queryset=VarianteProducto.objects.all(),
+        source='variante',
+        write_only=True
+    )
+
     subtotal = serializers.SerializerMethodField()
 
     class Meta:
         model = ItemCarrito
-        fields = ['id', 'variante', 'cantidad', 'subtotal']
+        fields = ['id', 'variante', 'variante_id', 'cantidad', 'subtotal']
 
     def get_subtotal(self, obj):
         return obj.subtotal()
@@ -125,10 +129,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 # ------------------------------------------------------------
-# ITEM PEDIDO
+# ITEM PEDIDO 🔥
 # ------------------------------------------------------------
 class ItemPedidoSerializer(serializers.ModelSerializer):
-    variante = VarianteSerializer(read_only=True)
+    variante = VarianteProductoSerializer(read_only=True)
     subtotal = serializers.SerializerMethodField()
 
     class Meta:
