@@ -1,11 +1,6 @@
 from rest_framework import serializers
-from .models import (
-    Producto, Categoria, ProductoImagen,
-    Carrito, ItemCarrito, Pedido, ItemPedido,
-    VarianteProducto
-)
+from .models import Producto, Categoria, ProductoImagen, Carrito, ItemCarrito, Pedido, ItemPedido
 from django.contrib.auth.models import User
-
 
 # ------------------------------------------------------------
 # CATEGORÍA
@@ -17,21 +12,12 @@ class CategoriaSerializer(serializers.ModelSerializer):
 
 
 # ------------------------------------------------------------
-# PRODUCTO IMAGEN
+# PRODUCTO IMAGEN (NUEVO)
 # ------------------------------------------------------------
 class ProductoImagenSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductoImagen
         fields = ['imagen']
-
-
-# ------------------------------------------------------------
-# 🔥 VARIANTE PRODUCTO (NUEVO)
-# ------------------------------------------------------------
-class VarianteProductoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = VarianteProducto
-        fields = "__all__"
 
 
 # ------------------------------------------------------------
@@ -46,10 +32,8 @@ class ProductoSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
+    # MÚLTIPLES IMÁGENES
     imagenes = ProductoImagenSerializer(many=True, read_only=True)
-
-    # 🔥 AÑADIDO: variantes
-    variantes = VarianteProductoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Producto
@@ -57,15 +41,15 @@ class ProductoSerializer(serializers.ModelSerializer):
 
 
 # ------------------------------------------------------------
-# ITEM CARRITO (USA VARIANTE)
+# ITEM CARRITO
 # ------------------------------------------------------------
 class ItemCarritoSerializer(serializers.ModelSerializer):
-    variante = VarianteProductoSerializer(read_only=True)
+    producto = ProductoSerializer(read_only=True)
     subtotal = serializers.SerializerMethodField()
 
     class Meta:
         model = ItemCarrito
-        fields = ['id', 'variante', 'cantidad', 'subtotal']
+        fields = ['id', 'producto', 'cantidad', 'subtotal']
 
     def get_subtotal(self, obj):
         return obj.subtotal()
@@ -96,12 +80,14 @@ class UserSerializer(serializers.ModelSerializer):
             'email': {'required': True, 'allow_blank': False}
         }
 
+    # VALIDACIÓN DE EMAIL
     def validate_email(self, value):
         email = value.strip().lower()
         if User.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError("Este correo ya está registrado.")
         return email
 
+    # VALIDACIÓN DE CONTRASEÑA
     def validate_password(self, password):
         if len(password) < 6:
             raise serializers.ValidationError("La contraseña debe tener al menos 6 caracteres.")
@@ -111,6 +97,7 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("La contraseña debe incluir al menos un símbolo.")
         return password
 
+    # CREACIÓN DE USUARIO
     def create(self, validated_data):
         validated_data['email'] = validated_data['email'].strip().lower()
         user = User.objects.create_user(
@@ -122,15 +109,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 # ------------------------------------------------------------
-# ITEM PEDIDO (USA VARIANTE)
+# ITEM PEDIDO
 # ------------------------------------------------------------
 class ItemPedidoSerializer(serializers.ModelSerializer):
-    variante = VarianteProductoSerializer(read_only=True)
+    producto = ProductoSerializer(read_only=True)
     subtotal = serializers.SerializerMethodField()
 
     class Meta:
         model = ItemPedido
-        fields = ['variante', 'cantidad', 'precio_unitario', 'subtotal']
+        fields = ['producto', 'cantidad', 'precio_unitario', 'subtotal']
 
     def get_subtotal(self, obj):
         return obj.subtotal()
