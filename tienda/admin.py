@@ -52,10 +52,19 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'precio', 'stock', 'fecha_creacion', 'categoria')
+    list_display = ('nombre', 'precio_min', 'stock_total', 'fecha_creacion', 'categoria')
     search_fields = ['nombre']
-    list_filter = ['fecha_creacion', 'categoria', StockBajoFilter, FechaCreacionFilter]
-    inlines = [ProductoImagenInline]  
+    list_filter = ['fecha_creacion', 'categoria']
+    inlines = [ProductoImagenInline]
+
+    def stock_total(self, obj):
+        return sum(v.stock for v in obj.variantes.all())
+    stock_total.short_description = 'Stock total'
+
+    def precio_min(self, obj):
+        precios = obj.variantes.all().values_list('precio', flat=True)
+        return min(precios) if precios else 0
+    precio_min.short_description = 'Precio desde'
 
 
 class ItemCarritoInline(admin.TabularInline):
