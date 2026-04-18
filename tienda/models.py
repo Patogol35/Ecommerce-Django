@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(blank=True, null=True)
@@ -13,10 +14,8 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    # ⚠️ stock ahora opcional (ya no principal)
-    stock = models.IntegerField(null=True, blank=True)
-
-    imagen = models.URLField(max_length=500)
+    stock = models.IntegerField()
+    imagen = models.URLField(max_length=500)  # imagen principal
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     categoria = models.ForeignKey(
@@ -29,21 +28,6 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
-
-
-# 🔥 NUEVO
-class VarianteProducto(models.Model):
-    producto = models.ForeignKey(Producto, related_name="variantes", on_delete=models.CASCADE)
-
-    nombre = models.CharField(max_length=100)  # "Rojo - M"
-    color = models.CharField(max_length=50, blank=True, null=True)
-    talla = models.CharField(max_length=50, blank=True, null=True)
-
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.IntegerField()
-
-    def __str__(self):
-        return f"{self.producto.nombre} - {self.nombre}"
 
 
 class ProductoImagen(models.Model):
@@ -68,14 +52,14 @@ class Carrito(models.Model):
 
 class ItemCarrito(models.Model):
     carrito = models.ForeignKey(Carrito, related_name='items', on_delete=models.CASCADE)
-    variante = models.ForeignKey(VarianteProducto, on_delete=models.CASCADE)  # 🔥 cambio
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f'{self.cantidad} x {self.variante.nombre}'
+        return f'{self.cantidad} x {self.producto.nombre}'
 
     def subtotal(self):
-        return self.cantidad * self.variante.precio
+        return self.cantidad * self.producto.precio
 
 
 class Pedido(models.Model):
@@ -89,7 +73,7 @@ class Pedido(models.Model):
 
 class ItemPedido(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)
-    variante = models.ForeignKey(VarianteProducto, on_delete=models.CASCADE)  # 🔥 cambio
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -97,4 +81,4 @@ class ItemPedido(models.Model):
         return self.cantidad * self.precio_unitario
 
     def __str__(self):
-        return f'{self.cantidad} x {self.variante.nombre}'
+        return f'{self.cantidad} x {self.producto.nombre}'
