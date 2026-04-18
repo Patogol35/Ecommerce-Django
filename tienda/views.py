@@ -14,9 +14,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
-# 🔥 IMPORTANTE: agregamos VarianteProducto
-from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido, VarianteProducto
-
+from .models import Producto, Categoria, Carrito, ItemCarrito, Pedido, ItemPedido
 from .serializers import (
     ProductoSerializer,
     CategoriaSerializer,
@@ -39,33 +37,32 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
 
 
-# 🔥 AGREGAR AL CARRITO (CON VARIANTE)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def agregar_al_carrito(request):
-    variante_id = request.data.get('variante_id')
+    producto_id = request.data.get('producto_id')
     cantidad = int(request.data.get('cantidad', 1))
 
     try:
-        variante = VarianteProducto.objects.get(id=variante_id)
-    except VarianteProducto.DoesNotExist:
-        return Response({'error': 'Variante no encontrada'}, status=404)
+        producto = Producto.objects.get(id=producto_id)
+    except Producto.DoesNotExist:
+        return Response({'error': 'Producto no encontrado'}, status=404)
 
-    if cantidad > variante.stock:
-        return Response({'error': f'Solo hay {variante.stock} disponibles'}, status=400)
+    if cantidad > producto.stock:
+        return Response({'error': f'Solo hay {producto.stock} disponibles'}, status=400)
 
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
 
     item, creado = ItemCarrito.objects.get_or_create(
         carrito=carrito,
-        variante=variante,
+        producto=producto,
         defaults={'cantidad': cantidad}
     )
 
     if not creado:
         nueva_cantidad = item.cantidad + cantidad
 
-        if nueva_cantidad > variante.stock:
+        if nueva_cantidad > producto.stock:
             return Response({'error': 'Stock insuficiente'}, status=400)
 
         if nueva_cantidad <= 0:
@@ -89,7 +86,6 @@ def eliminar_del_carrito(request, item_id):
         return Response({'error': 'No encontrado'}, status=404)
 
 
-# 🔥 ACTUALIZAR CANTIDAD (USA VARIANTE)
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def actualizar_cantidad_carrito(request, item_id):
@@ -103,8 +99,8 @@ def actualizar_cantidad_carrito(request, item_id):
         item.delete()
         return Response({'message': 'Eliminado'}, status=200)
 
-    if cantidad > item.variante.stock:
-        return Response({'error': f'Solo hay {item.variante.stock} disponibles'}, status=400)
+    if cantidad > item.producto.stock:
+        return Response({'error': f'Solo hay {item.producto.stock} disponibles'}, status=400)
 
     item.cantidad = cantidad
     item.save()
@@ -135,35 +131,35 @@ def user_profile(request):
     })
 
 
-# 🔥 CREAR PEDIDO (CON VARIANTES)
+# CREAR PEDIDO 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def crear_pedido(request):
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
-    items = list(carrito.items.select_related('variante'))
+    items = list(carrito.items.select_related('producto'))
 
     if not items:
         return Response({'error': 'Carrito vacío'}, status=400)
 
     # Validar stock
     for it in items:
-        if it.variante.stock < it.cantidad:
-            return Response({'error': f'Stock insuficiente'}, status=400)
+        if it.producto.stock < it.cantidad:
+            return Response({'error': f'Stock insuficiente para {it.producto.nombre}'}, status=400)
 
     with transaction.atomic():
-        total = sum((Decimal(it.variante.precio) * it.cantidad for it in items), Decimal('0'))
+        total = sum((Decimal(it.producto.precio) * it.cantidad for it in items), Decimal('0'))
         pedido = Pedido.objects.create(usuario=request.user, total=total)
 
         for it in items:
-            var = it.variante
-            var.stock -= it.cantidad
-            var.save()
+            prod = it.producto
+            prod.stock -= it.cantidad
+            prod.save()
 
             ItemPedido.objects.create(
                 pedido=pedido,
-                variante=var,
+                producto=prod,
                 cantidad=it.cantidad,
-                precio_unitario=var.precio
+                precio_unitario=prod.precio
             )
 
         carrito.items.all().delete()
@@ -184,7 +180,7 @@ class ListaPedidosUsuario(generics.ListAPIView):
         return Pedido.objects.filter(usuario=self.request.user).order_by('-id')
 
 
-# GOOGLE LOGIN
+# GOOGLE LOGIN 
 @api_view(['POST'])
 def google_login(request):
     token = request.data.get('token')
@@ -205,6 +201,7 @@ def google_login(request):
         email = idinfo.get('email')
         name = idinfo.get('name')
 
+        # EVITA USUARIOS DUPLICADOS
         user, created = User.objects.get_or_create(
             email=email,
             defaults={
