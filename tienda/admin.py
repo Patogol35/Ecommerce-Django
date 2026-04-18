@@ -1,23 +1,18 @@
 from django.contrib import admin
 from .models import (
-    Producto,
-    ProductoImagen,
-    Categoria,
-    Carrito,
-    ItemCarrito,
-    Pedido,
-    ItemPedido,
-    Variante
+    Producto, ProductoImagen, Categoria,
+    Carrito, ItemCarrito, Pedido, ItemPedido,
+    VarianteProducto
 )
 from datetime import datetime, timedelta
 
 
-# =========================
-# FILTRO STOCK (AHORA POR VARIANTE)
-# =========================
+# ------------------------------------------------------------
+# FILTROS 🔥 (AHORA SOBRE VARIANTES)
+# ------------------------------------------------------------
 class StockBajoFilter(admin.SimpleListFilter):
     title = 'Stock (variantes)'
-    parameter_name = 'stock_variante'
+    parameter_name = 'stock_variantes'
 
     def lookups(self, request, model_admin):
         return [
@@ -33,9 +28,6 @@ class StockBajoFilter(admin.SimpleListFilter):
         return queryset
 
 
-# =========================
-# FILTRO FECHA
-# =========================
 class FechaCreacionFilter(admin.SimpleListFilter):
     title = 'Fecha de creación'
     parameter_name = 'fecha_creacion_custom'
@@ -48,64 +40,57 @@ class FechaCreacionFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         hoy = datetime.now().date()
-
         if self.value() == 'hoy':
             return queryset.filter(fecha_creacion__date=hoy)
-
         if self.value() == 'semana':
             semana_inicio = hoy - timedelta(days=hoy.weekday())
             return queryset.filter(fecha_creacion__date__gte=semana_inicio)
-
         return queryset
 
 
-# =========================
+# ------------------------------------------------------------
 # INLINES
-# =========================
+# ------------------------------------------------------------
 class ProductoImagenInline(admin.TabularInline):
     model = ProductoImagen
     extra = 1
 
 
-class VarianteInline(admin.TabularInline):
-    model = Variante
+# 🔥 INLINE DE VARIANTES (CLAVE)
+class VarianteProductoInline(admin.TabularInline):
+    model = VarianteProducto
     extra = 1
 
 
-class ItemCarritoInline(admin.TabularInline):
-    model = ItemCarrito
-    extra = 0
-
-
-class ItemPedidoInline(admin.TabularInline):
-    model = ItemPedido
-    extra = 0
-
-
-# =========================
-# ADMIN CATEGORIA
-# =========================
+# ------------------------------------------------------------
+# CATEGORIA
+# ------------------------------------------------------------
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ("id", "nombre", "descripcion")
     search_fields = ["nombre"]
 
 
-# =========================
-# ADMIN PRODUCTO
-# =========================
-@admin.register(Producto)
+# ------------------------------------------------------------
+# PRODUCTO 🔥
+# ------------------------------------------------------------
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'precio', 'categoria', 'fecha_creacion')
+    list_display = ('nombre', 'categoria', 'fecha_creacion')
     search_fields = ['nombre']
     list_filter = ['categoria', StockBajoFilter, FechaCreacionFilter]
-    inlines = [ProductoImagenInline, VarianteInline]
+
+    # 🔥 ahora puedes editar todo aquí
+    inlines = [ProductoImagenInline, VarianteProductoInline]
 
 
-# =========================
-# ADMIN CARRITO
-# =========================
-@admin.register(Carrito)
+# ------------------------------------------------------------
+# CARRITO
+# ------------------------------------------------------------
+class ItemCarritoInline(admin.TabularInline):
+    model = ItemCarrito
+    extra = 0
+
+
 class CarritoAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'creado')
     inlines = [ItemCarritoInline]
@@ -113,12 +98,24 @@ class CarritoAdmin(admin.ModelAdmin):
     list_filter = ['creado']
 
 
-# =========================
-# ADMIN PEDIDO
-# =========================
-@admin.register(Pedido)
+# ------------------------------------------------------------
+# PEDIDOS
+# ------------------------------------------------------------
+class ItemPedidoInline(admin.TabularInline):
+    model = ItemPedido
+    extra = 0
+
+
 class PedidoAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'fecha', 'total')
     inlines = [ItemPedidoInline]
     search_fields = ['usuario__username']
     list_filter = ['fecha']
+
+
+# ------------------------------------------------------------
+# REGISTROS
+# ------------------------------------------------------------
+admin.site.register(Producto, ProductoAdmin)
+admin.site.register(Carrito, CarritoAdmin)
+admin.site.register(Pedido, PedidoAdmin)
