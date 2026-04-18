@@ -4,42 +4,25 @@ from .models import Producto
 
 class ProductoFilter(django_filters.FilterSet):
     precio_min = django_filters.NumberFilter(
-        field_name='precio',
+        field_name='variantes__precio',
         lookup_expr='gte'
     )
-
     precio_max = django_filters.NumberFilter(
-        field_name='precio',
+        field_name='variantes__precio',
         lookup_expr='lte'
     )
 
-    # 🔥 STOCK EN VARIANTES
     stock_min = django_filters.NumberFilter(
         field_name='variantes__stock',
         lookup_expr='gte'
     )
-
     stock_max = django_filters.NumberFilter(
         field_name='variantes__stock',
         lookup_expr='lte'
     )
 
-    categoria = django_filters.NumberFilter(
-        field_name='categoria__id'
-    )
+    categoria = django_filters.NumberFilter(field_name='categoria__id')
 
     class Meta:
         model = Producto
-        fields = [
-            'precio_min',
-            'precio_max',
-            'stock_min',
-            'stock_max',
-            'categoria'
-        ]
-
-    # 🔥 CLAVE: evita duplicados y errores SQL
-    @property
-    def qs(self):
-        parent = super().qs
-        return parent.distinct()
+        fields = ['precio_min', 'precio_max', 'stock_min', 'stock_max', 'categoria']
