@@ -3,13 +3,15 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.conf import settings
 
-from rest_framework import viewsets, generics, permissions, status
+from rest_framework import viewsets, generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from django_filters.rest_framework import DjangoFilterBackend  # 🔥 IMPORTANTE
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -21,7 +23,7 @@ from .models import (
     ItemCarrito,
     Pedido,
     ItemPedido,
-    VarianteProducto  # 🔥 IMPORTANTE
+    VarianteProducto
 )
 
 from .serializers import (
@@ -41,8 +43,9 @@ from .filters import ProductoFilter
 # =========================
 
 class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.all()
+    queryset = Producto.objects.prefetch_related('variantes').all()  # 🔥 optimizado
     serializer_class = ProductoSerializer
+    filter_backends = [DjangoFilterBackend]  # 🔥 SOLUCIÓN CLAVE
     filterset_class = ProductoFilter
 
 
@@ -117,7 +120,6 @@ def actualizar_cantidad_carrito(request, item_id):
         item.delete()
         return Response({'message': 'Eliminado'}, status=200)
 
-    # 🔥 AHORA USA VARIANTE
     if cantidad > item.variante.stock:
         return Response({'error': f'Solo hay {item.variante.stock} disponibles'}, status=400)
 
@@ -167,7 +169,6 @@ def crear_pedido(request):
     if not items:
         return Response({'error': 'Carrito vacío'}, status=400)
 
-    # 🔥 VALIDAR STOCK POR VARIANTE
     for it in items:
         if it.variante.stock < it.cantidad:
             return Response({
