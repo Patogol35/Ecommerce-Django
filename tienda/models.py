@@ -13,6 +13,8 @@ class Categoria(models.Model):
 class Producto(models.Model):
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField()
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.IntegerField()
     imagen = models.URLField(max_length=500)  # imagen principal
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
@@ -26,25 +28,6 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
-
-
-# 🔥 NUEVO: Variantes del producto
-class VarianteProducto(models.Model):
-    producto = models.ForeignKey(
-        Producto,
-        related_name='variantes',
-        on_delete=models.CASCADE
-    )
-    talla = models.CharField(max_length=20, blank=True, null=True)
-    color = models.CharField(max_length=50, blank=True, null=True)
-
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.IntegerField()
-
-    sku = models.CharField(max_length=100, unique=True, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.producto.nombre} - {self.talla or ''} - {self.color or ''}"
 
 
 class ProductoImagen(models.Model):
@@ -69,17 +52,14 @@ class Carrito(models.Model):
 
 class ItemCarrito(models.Model):
     carrito = models.ForeignKey(Carrito, related_name='items', on_delete=models.CASCADE)
-
-    # 🔥 CAMBIO CLAVE: ahora se guarda la variante
-    variante = models.ForeignKey(VarianteProducto, on_delete=models.CASCADE)
-
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f'{self.cantidad} x {self.variante.producto.nombre} ({self.variante.talla} - {self.variante.color})'
+        return f'{self.cantidad} x {self.producto.nombre}'
 
     def subtotal(self):
-        return self.cantidad * self.variante.precio
+        return self.cantidad * self.producto.precio
 
 
 class Pedido(models.Model):
@@ -93,10 +73,7 @@ class Pedido(models.Model):
 
 class ItemPedido(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)
-
-    # 🔥 también aquí usamos variante
-    variante = models.ForeignKey(VarianteProducto, on_delete=models.CASCADE)
-
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -104,4 +81,4 @@ class ItemPedido(models.Model):
         return self.cantidad * self.precio_unitario
 
     def __str__(self):
-        return f'{self.cantidad} x {self.variante.producto.nombre} ({self.variante.talla} - {self.variante.color})'
+        return f'{self.cantidad} x {self.producto.nombre}'
