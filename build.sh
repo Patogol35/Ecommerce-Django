@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
-# fail on errors
 set -o errexit
 
-# Instala dependencias
 pip install -r requirements.txt
 
-# Recoge archivos estáticos
 python manage.py collectstatic --noinput
 
-# Aplica migraciones
-python manage.py makemigrations
-python manage.py migrate
+# ⚠️ QUITA makemigrations en producción
+python manage.py migrate --noinput
 
-# Crear superusuario automático si no existe
+# Crear superusuario automático
 python manage.py shell << END
 from django.contrib.auth import get_user_model
 User = get_user_model()
